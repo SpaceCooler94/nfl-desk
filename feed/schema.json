@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NFL Desk weekly card",
+  "type": "object",
+  "required": ["season", "week", "status", "games"],
+  "properties": {
+    "season": { "type": "integer" },
+    "week": { "type": "integer" },
+    "status": { "enum": ["SEED_PRIOR", "LIVE"] },
+    "generated_at": { "type": "string" },
+    "games": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "away", "home", "play"],
+        "properties": {
+          "market_spread": {
+            "description": "Home market spread. BUF -5.5 means -5.5.",
+            "type": ["number", "null"]
+          },
+          "model_spread": {
+            "description": "Home expected margin from the model. Same sign as market_spread.",
+            "type": ["number", "null"]
+          },
+          "edge_spread": {
+            "description": "model_spread - market_spread. Positive = model likes home vs the number.",
+            "type": ["number", "null"]
+          },
+          "play": { "enum": ["HOME", "AWAY", "OVER", "UNDER", "PASS"] }
+        }
+      }
+    }
+  }
+}
