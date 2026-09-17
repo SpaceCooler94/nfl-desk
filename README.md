@@ -1,63 +1,51 @@
-# NFL Desk
+# NFL Desk — player props
 
-Personal NFL prediction desk for **Scriptable on iOS**.
-
-The phone never runs Python. It pulls a frozen JSON card from this repo.
+Scriptable iOS client + JSON feed. **Props only.** Sides/totals are out of the card.
 
 ```
 feed/current.json          ← Scriptable reads this
 scriptable/NFL-Desk.js     ← paste into Scriptable
-python/                    ← rebuild the card on a laptop
+python/props.py            ← projection helpers
 ```
 
-## Raw feed URL (public)
+## Feed
 
-```
 https://raw.githubusercontent.com/SpaceCooler94/nfl-desk/main/feed/current.json
-```
 
-GitHub raw caches. The Scriptable file appends `?t=<timestamp>`.
+## Install
 
-## Scriptable install
+1. Scriptable → + → paste `scriptable/NFL-Desk.js` → name it `NFL Desk`.
+2. Run. You get tonight's DET @ BUF prop board.
+3. Optional medium widget on the same script (top WATCH row).
 
-1. Open [Scriptable](https://scriptable.app) on iPhone.
-2. Tap **+** → paste `scriptable/NFL-Desk.js`.
-3. Name it `NFL Desk`.
-4. Run it. You should get Week 2 as a table.
-5. Optional: long-press home screen → Scriptable widget → small or medium → script `NFL Desk`.
+## Card fields that matter
 
-If you later make the repo private, add a classic PAT with `repo` scope into Scriptable Keychain:
+| field | meaning |
+|---|---|
+| `market` | `pass_yds` `rush_yds` `rec_yds` `receptions` `rush_att` `pass_rush_yds` `anytime_td` |
+| `line` | posted number |
+| `proj` | model mean |
+| `edge` | `proj - line` (positive likes the over) |
+| `p_over` | Normal(proj, sigma) vs the line |
+| `price` | American on the over / yes |
+| `play` | `OVER` `UNDER` `WATCH` `PASS` |
 
-```js
-Keychain.set("nflDeskGithubToken", "ghp_...");
-```
+`WATCH` = the number is interesting. It is not a ticket until `status` is `LIVE` and juice is tolerable.
 
-The script already sends `Authorization: Bearer` when that key exists.
+## How the prop model is supposed to work
 
-## Card contract
+Do not project yards from Week 1 box scores raw.
 
-See `feed/schema.json`. Minimum fields Scriptable needs per game:
+1. Last-season per-game mean as prior (8-game trailing, not full season if role changed).
+2. Shrink current-season games toward that prior. Week 2 prior weight is heavy (`k ≈ 6`).
+3. Volume first, efficiency second. Receptions and carries stabilize before yards.
+4. Opponent adjust with defense vs position (pass EPA allowed to WR/TE/RB, rush EPA allowed).
+5. Convert mean to P(over) with a position-market sigma. Passing yards sigma is ~60, not 15.
+6. Bet the over only if `p_over` beats vig-removed implied and `|proj-line|` is a real fraction of sigma.
+7. Refuse −125 or worse unless the edge is large. Gibbs 18.5 carries at −128 is a pass even if volume is real.
 
-- `away`, `home`, `kickoff`
-- `market_spread` (home perspective, e.g. BUF -5.5 → `-5.5`)
-- `model_spread` (home expected margin, same sign convention)
-- `play` = `HOME` | `AWAY` | `OVER` | `UNDER` | `PASS`
-- `edge_spread` = `model_spread - market_spread` (positive = model likes home vs the number)
+Anytime TD is a different model (opportunity × red-zone share × vulture risk). Do not treat it like a yard total.
 
-`status` on the card:
+## TNF note
 
-- `SEED_PRIOR` — placeholder priors, do not bet this
-- `LIVE` — generated from the Python rating pipeline
-
-## Rebuild the card (laptop)
-
-```bash
-pip install nflreadpy pandas numpy
-python python/export_feed.py
-```
-
-Commit the updated `feed/current.json`. Scriptable picks it up on the next run.
-
-## Week 2 note
-
-The checked-in card is a **seed** so the iOS script works tonight (DET @ BUF). It is prior-weighted, not a matured 2026 model. Treat every `PASS` as the correct default until you replace the file with `export_feed.py` output.
+The checked-in card is a **seed** so the phone works before kickoff. Lines were pulled from public Week 2 writeups (DK / MGM / FanDuel / Underdog / Betr). They will move. Re-price before you even think about a unit.

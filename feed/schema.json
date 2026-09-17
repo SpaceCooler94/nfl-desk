@@ -1,32 +1,33 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "NFL Desk weekly card",
+  "title": "NFL Desk player-prop card",
   "type": "object",
-  "required": ["season", "week", "status", "games"],
+  "required": ["season", "week", "status", "card_type", "props"],
   "properties": {
-    "season": { "type": "integer" },
-    "week": { "type": "integer" },
+    "card_type": { "const": "player_props" },
     "status": { "enum": ["SEED_PRIOR", "LIVE"] },
-    "generated_at": { "type": "string" },
-    "games": {
+    "props": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "away", "home", "play"],
+        "required": ["id", "player", "team", "opp", "market", "play"],
         "properties": {
-          "market_spread": {
-            "description": "Home market spread. BUF -5.5 means -5.5.",
+          "market": {
+            "enum": [
+              "pass_yds", "pass_tds", "pass_cmp", "pass_att",
+              "rush_yds", "rush_att", "rec_yds", "receptions",
+              "pass_rush_yds", "anytime_td"
+            ]
+          },
+          "line": { "type": ["number", "null"] },
+          "proj": { "type": ["number", "null"] },
+          "edge": {
+            "description": "proj - line. Positive = model likes the over.",
             "type": ["number", "null"]
           },
-          "model_spread": {
-            "description": "Home expected margin from the model. Same sign as market_spread.",
-            "type": ["number", "null"]
-          },
-          "edge_spread": {
-            "description": "model_spread - market_spread. Positive = model likes home vs the number.",
-            "type": ["number", "null"]
-          },
-          "play": { "enum": ["HOME", "AWAY", "OVER", "UNDER", "PASS"] }
+          "p_over": { "type": ["number", "null"] },
+          "price": { "description": "American odds on the over / yes", "type": ["integer", "null"] },
+          "play": { "enum": ["OVER", "UNDER", "WATCH", "PASS"] }
         }
       }
     }
