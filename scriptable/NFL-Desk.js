@@ -1,44 +1,27 @@
-// NFL Desk — Scriptable
-// Fetches feed/current.json from GitHub and renders the week card.
+// NFL Desk — Scriptable (player props)
+// Fetches feed/current.json and lists props, not sides/totals.
 //
-// Setup:
-//   1. Paste this file into Scriptable as "NFL Desk"
-//   2. Default repo is public: SpaceCooler94/nfl-desk
-//   3. Private repo: Keychain.set("nflDeskGithubToken", "ghp_...")
-//
-// Widget: add a Scriptable medium widget pointed at this script.
+// Setup: paste this file into Scriptable as "NFL Desk"
+// Private repo: Keychain.set("nflDeskGithubToken", "ghp_...")
 
 const OWNER = "SpaceCooler94";
 const REPO = "nfl-desk";
 const BRANCH = "main";
 const FEED_PATH = "feed/current.json";
-const EDGE_FLAG = 3.0;
+const EDGE_FLAG = 8;
 
 function feedUrl() {
   return (
     "https://raw.githubusercontent.com/" +
-    OWNER +
-    "/" +
-    REPO +
-    "/" +
-    BRANCH +
-    "/" +
-    FEED_PATH +
-    "?t=" +
-    Date.now()
+    OWNER + "/" + REPO + "/" + BRANCH + "/" + FEED_PATH +
+    "?t=" + Date.now()
   );
 }
 
 function apiUrl() {
   return (
     "https://api.github.com/repos/" +
-    OWNER +
-    "/" +
-    REPO +
-    "/contents/" +
-    FEED_PATH +
-    "?ref=" +
-    BRANCH
+    OWNER + "/" + REPO + "/contents/" + FEED_PATH + "?ref=" + BRANCH
   );
 }
 
@@ -55,7 +38,6 @@ async function loadCard() {
   const hdrs = { "User-Agent": "nfl-desk-scriptable" };
   const tok = token();
   if (tok) hdrs.Authorization = "Bearer " + tok;
-
   try {
     const raw = new Request(feedUrl());
     raw.headers = hdrs;
@@ -69,34 +51,47 @@ async function loadCard() {
   }
 }
 
-function fmtNum(n, digits) {
+function fmt(n, d) {
   if (n === null || n === undefined || isNaN(n)) return "—";
-  const d = digits === undefined ? 1 : digits;
   const v = Number(n);
-  return (v > 0 ? "+" : "") + v.toFixed(d);
+  const s = v.toFixed(d === undefined ? 1 : d);
+  return (v > 0 ? "+" : "") + s;
 }
 
-function spreadLabel(g) {
-  if (g.market_spread === null || g.market_spread === undefined) {
-    return g.away + " @ " + g.home;
-  }
-  const s = Number(g.market_spread);
-  if (s < 0) return g.home + " " + s.toFixed(1);
-  if (s > 0) return g.away + " " + (-s).toFixed(1);
-  return "PK";
+function american(n) {
+  if (n === null || n === undefined) return "";
+  const v = Number(n);
+  return (v > 0 ? "+" : "") + String(v);
 }
 
 function playColor(play) {
-  if (play === "HOME" || play === "AWAY") return new Color("#3DDC97");
-  if (play === "OVER" || play === "UNDER") return new Color("#5B8DEF");
+  if (play === "OVER" || play === "UNDER") return new Color("#3DDC97");
+  if (play === "WATCH") return new Color("#FF9F0A");
   return new Color("#8E8E93");
 }
 
-function edgeTone(edge) {
-  if (edge === null || edge === undefined) return new Color("#8E8E93");
-  const a = Math.abs(Number(edge));
-  if (a >= EDGE_FLAG) return new Color("#FF9F0A");
-  return new Color("#EBEBF5");
+function impliedOver(americanPrice) {
+  if (americanPrice === null || americanPrice === undefined) return null;
+  const o = Number(americanPrice);
+  if (o < 0) return (-o) / ((-o) + 100);
+  return 100 / (o + 100);
+}
+
+function propLine(p) {
+  const side = p.edge != null && Number(p.edge) < 0 ? "U" : "O";
+  return side + " " + (p.line != null ? p.line : "—") + "   proj " + (p.proj != null ? p.proj : "—");
+}
+
+function sortedProps(card) {
+  const rows = (card.props || []).slice();
+  rows.sort((a, b) => {
+    const rank = { OVER: 0, UNDER: 0, WATCH: 1, PASS: 2 };
+    const ra = rank[a.play] != null ? rank[a.play] : 3;
+    const rb = rank[b.play] != null ? rank[b.play] : 3;
+    if (ra !== rb) return ra - rb;
+    return Math.abs(b.edge || 0) - Math.abs(a.edge || 0);
+  });
+  return rows;
 }
 
 async function presentTable(card) {
@@ -106,43 +101,41 @@ async function presentTable(card) {
   const head = new UITableRow();
   head.isHeader = true;
   head.height = 44;
-  const title = card.status === "SEED_PRIOR" ? "SEED — do not bet" : "LIVE card";
-  head.addText("NFL " + card.season + "  Wk " + card.week + "   " + title);
+  const tag = card.status === "SEED_PRIOR" ? "SEED — do not bet" : "LIVE props";
+  head.addText("NFL " + card.season + "  Wk " + card.week + "  PROPS   " + tag);
   table.addRow(head);
 
   const sub = new UITableRow();
-  sub.height = 28;
-  sub.addText(card.disclaimer || card.generated_at || "");
+  sub.height = 36;
+  sub.addText(card.disclaimer || "");
   table.addRow(sub);
 
-  for (const g of card.games) {
+  for (const p of sortedProps(card)) {
     const row = new UITableRow();
-    row.height = 56;
-    row.cellSpacing = 8;
-    row.onSelect = () => showGame(card, g);
+    row.height = 58;
+    row.cellSpacing = 6;
+    row.onSelect = () => showProp(card, p);
 
-    const left = row.addText(g.when + "\n" + g.away + " @ " + g.home);
-    left.widthWeight = 35;
-    left.titleFont = Font.mediumSystemFont(14);
+    const left = row.addText(p.when + "\n" + p.team + " vs " + p.opp);
+    left.widthWeight = 22;
+    left.titleFont = Font.systemFont(11);
     left.subtitleFont = Font.systemFont(11);
 
-    const mid = row.addText(spreadLabel(g) + "\nTot " + (g.market_total ?? "—"));
-    mid.widthWeight = 25;
+    const mid = row.addText(p.player + "\n" + (p.market_label || p.market));
+    mid.widthWeight = 36;
     mid.titleFont = Font.mediumSystemFont(14);
+    mid.subtitleFont = Font.systemFont(11);
 
-    const edgeStr =
-      "m " +
-      fmtNum(g.model_spread) +
-      "\nΔ " +
-      fmtNum(g.edge_spread);
-    const right = row.addText(edgeStr);
-    right.widthWeight = 20;
-    right.titleColor = edgeTone(g.edge_spread);
+    const right = row.addText(propLine(p) + "\nΔ " + fmt(p.edge));
+    right.widthWeight = 26;
+    right.titleFont = Font.systemFont(12);
+    right.titleColor =
+      Math.abs(p.edge || 0) >= EDGE_FLAG ? new Color("#FF9F0A") : new Color("#EBEBF5");
 
-    const badge = row.addText(g.play || "PASS");
-    badge.widthWeight = 15;
-    badge.titleColor = playColor(g.play);
-    badge.titleFont = Font.boldSystemFont(13);
+    const badge = row.addText(p.play || "PASS");
+    badge.widthWeight = 16;
+    badge.titleColor = playColor(p.play);
+    badge.titleFont = Font.boldSystemFont(12);
 
     table.addRow(row);
   }
@@ -150,32 +143,31 @@ async function presentTable(card) {
   await table.present();
 }
 
-async function showGame(card, g) {
+async function showProp(card, p) {
+  const imp = impliedOver(p.price);
   const a = new Alert();
-  a.title = g.away + " @ " + g.home;
+  a.title = p.player;
   a.message = [
-    g.when + (g.tv ? "  " + g.tv : ""),
-    "Market: " + spreadLabel(g) + "  O/U " + (g.market_total ?? "—"),
-    "Model spread: " + fmtNum(g.model_spread) + " (home margin)",
-    "Model total: " + fmtNum(g.model_total),
-    "Home WP: " + (g.home_wp != null ? (100 * g.home_wp).toFixed(0) + "%" : "—"),
-    "Edge spread: " + fmtNum(g.edge_spread),
-    "Play: " + g.play + "   Units: " + (g.units ?? 0),
+    p.team + " vs " + p.opp + "   " + p.when,
+    (p.market_label || p.market) + "  " + (p.line != null ? p.line : "—"),
+    "Book: " + (p.book || "—") + "  " + american(p.price),
+    "Proj: " + (p.proj != null ? p.proj : "—") + "   σ " + (p.sigma != null ? p.sigma : "—"),
+    "P(over): " + (p.p_over != null ? (100 * p.p_over).toFixed(0) + "%" : "—") +
+      (imp != null ? "   mkt " + (100 * imp).toFixed(0) + "%" : ""),
+    "Edge (proj-line): " + fmt(p.edge),
+    "Play: " + p.play + "   Units: " + (p.units ?? 0),
     "",
-    g.note || "No note",
+    p.note || "No note",
     "",
-    "Card status: " + card.status
+    "Card: " + card.status
   ].join("\n");
   a.addAction("OK");
   await a.present();
 }
 
-function nextGame(card) {
-  const now = Date.now();
-  const upcoming = card.games
-    .filter((g) => g.kickoff && Date.parse(g.kickoff) >= now - 3 * 3600 * 1000)
-    .sort((a, b) => Date.parse(a.kickoff) - Date.parse(b.kickoff));
-  return upcoming[0] || card.games[0];
+function topWatch(card) {
+  const rows = sortedProps(card);
+  return rows.find((p) => p.play === "WATCH" || p.play === "OVER" || p.play === "UNDER") || rows[0];
 }
 
 function buildWidget(card) {
@@ -183,7 +175,7 @@ function buildWidget(card) {
   w.backgroundColor = new Color("#0B0F14");
   w.setPadding(12, 14, 12, 14);
 
-  const kicker = w.addText("NFL DESK  ·  W" + card.week);
+  const kicker = w.addText("NFL DESK PROPS  ·  W" + card.week);
   kicker.font = Font.boldSystemFont(10);
   kicker.textColor = new Color("#8E8E93");
 
@@ -193,24 +185,30 @@ function buildWidget(card) {
     card.status === "SEED_PRIOR" ? new Color("#FF9F0A") : new Color("#3DDC97");
 
   w.addSpacer(6);
+  const p = topWatch(card);
+  if (!p) {
+    w.addText("No props in feed");
+    return w;
+  }
 
-  const g = nextGame(card);
-  const match = w.addText(g.away + " @ " + g.home);
-  match.font = Font.boldSystemFont(18);
-  match.textColor = Color.white();
+  const name = w.addText(p.player);
+  name.font = Font.boldSystemFont(18);
+  name.textColor = Color.white();
 
-  const line = w.addText(g.when + "   " + spreadLabel(g));
-  line.font = Font.systemFont(12);
-  line.textColor = new Color("#EBEBF5");
+  const mkt = w.addText((p.market_label || p.market) + "  " + (p.line != null ? p.line : ""));
+  mkt.font = Font.systemFont(12);
+  mkt.textColor = new Color("#EBEBF5");
 
   const edge = w.addText(
-    "Model " + fmtNum(g.model_spread) + "   Δ " + fmtNum(g.edge_spread) + "   " + g.play
+    "Proj " + (p.proj != null ? p.proj : "—") +
+      "   Δ " + fmt(p.edge) +
+      "   " + p.play
   );
   edge.font = Font.mediumSystemFont(12);
-  edge.textColor = playColor(g.play);
+  edge.textColor = playColor(p.play);
 
   w.addSpacer();
-  const foot = w.addText((card.generated_at || "").replace("T", " ").slice(0, 16) + "Z");
+  const foot = w.addText(p.team + " vs " + p.opp + "  " + (p.when || ""));
   foot.font = Font.systemFont(9);
   foot.textColor = new Color("#636366");
   return w;
