@@ -1,1 +1,190 @@
-<placeholder>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Desk</title>
+  <style>
+    :root { --bg:#070b14; --card:#101826; --line:#1e2a3d; --text:#e8eef6; --muted:#8b97a8; --accent:#7ec8ff; --loud:#ff6b6b; --live:#ffd166; --ok:#6ee7b7; --warn:#f59e0b; }
+    * { box-sizing: border-box; }
+    body { margin:0; font:14px/1.45 ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif; background:var(--bg); color:var(--text); }
+    header { position:sticky; top:0; z-index:5; background:rgba(7,11,20,.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); padding:12px 16px 10px; }
+    h1 { font-size:16px; margin:0 0 2px; letter-spacing:.04em; }
+    .sub { color:var(--muted); font-size:12px; }
+    .row { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; align-items:center; }
+    input, select, button { background:var(--card); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:7px 10px; font:inherit; }
+    button { cursor:pointer; }
+    button.primary { background:#16324d; border-color:#2a5f8a; color:var(--accent); }
+    main { padding:14px 16px 48px; max-width:1400px; margin:0 auto; }
+    .grid { display:grid; grid-template-columns:1fr 320px; gap:14px; }
+    @media (max-width:980px) { .grid { grid-template-columns:1fr; } }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; }
+    table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+    th, td { text-align:left; padding:7px 6px; border-bottom:1px solid var(--line); white-space:nowrap; }
+    th { color:var(--muted); font-size:11px; font-weight:600; cursor:pointer; }
+    tr:hover td { background:#162033; }
+    tr.sel td { background:#1b2c44; }
+    .grade { font-weight:700; text-transform:uppercase; font-size:11px; }
+    .g-OVER, .g-UNDER { color:var(--ok); } .g-WATCH { color:var(--live); } .g-PASS { color:var(--muted); }
+    .pct { font-weight:650; }
+    .pill { display:inline-block; font-size:11px; padding:1px 7px; border-radius:999px; border:1px solid var(--line); color:var(--muted); }
+    .bars { display:grid; gap:6px; }
+    .bar-lab { display:flex; justify-content:space-between; font-size:11px; color:var(--muted); }
+    .track { height:7px; background:#0b1220; border-radius:99px; overflow:hidden; }
+    .fill { height:100%; background:var(--accent); } .fill.ok { background:var(--ok); }
+    .method details { color:var(--muted); font-size:12px; } .method p { margin:6px 0; }
+    .err { color:var(--loud); font-size:13px; } .tiny { font-size:11px; color:var(--muted); }
+    .neg { color:var(--loud); } .pos { color:var(--ok); }
+    .sport-toggle a { color:var(--muted); text-decoration:none; padding:4px 8px; border:1px solid var(--line); border-radius:8px; }
+    .sport-toggle a.on { color:var(--accent); border-color:#2a5f8a; background:#16324d; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 id="title">DESK</h1>
+    <div class="sub" id="sub">Player props. Research only.</div>
+    <div class="row">
+      <span class="sport-toggle" id="sports"></span>
+      <button class="primary" id="load">Load card</button>
+      <input id="q" placeholder="Search player / team / market" />
+      <select id="play"><option value="">All plays</option><option>WATCH</option><option>OVER</option><option>UNDER</option><option>PASS</option></select>
+      <select id="market"><option value="">All markets</option></select>
+      <select id="n"><option value="12">Top 12</option><option value="20" selected>Top 20</option><option value="40">Top 40</option><option value="999">All</option></select>
+      <button id="csv">CSV</button>
+      <button id="json">JSON</button>
+    </div>
+    <div class="tiny" id="meta" style="margin-top:8px">Loading…</div>
+  </header>
+  <main>
+    <div class="grid">
+      <div class="card" style="overflow:auto">
+        <table>
+          <thead><tr>
+            <th data-k="rank">#</th><th data-k="player">Player</th><th data-k="market_label">Market</th>
+            <th data-k="line">Line</th><th data-k="proj">Proj</th><th data-k="edge">Edge</th>
+            <th data-k="p_over">P(over)</th><th data-k="play">Play</th><th data-k="when">When</th><th data-k="price">Price</th>
+          </tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div>
+        <div class="card" id="detail"><div class="tiny">Select a row</div></div>
+        <div class="card method" style="margin-top:14px">
+          <strong>What this view is</strong>
+          <details open>
+            <summary>Same lens as Moonshot steamer</summary>
+            <p>Sticky header, filter row, sortable table, detail pane. Numbers come from <code>feed/current.json</code>.</p>
+            <p><b>Edge</b> is proj − line. Negative = under lean. SEED_PRIOR means do not size a unit.</p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </main>
+<script>
+const DESKS = {
+  nfl: { label:"NFL DESK PROPS", feed:"https://raw.githubusercontent.com/SpaceCooler94/nfl-desk/main/feed/current.json" },
+  mlb: { label:"MLB DESK PROPS", feed:"https://raw.githubusercontent.com/SpaceCooler94/mlb-desk/main/feed/current.json" }
+};
+function sportFromPage() {
+  const q = new URLSearchParams(location.search).get("sport");
+  if (q && DESKS[q]) return q;
+  if (/mlb-desk/i.test(location.href)) return "mlb";
+  return "nfl";
+}
+const state = { sport: sportFromPage(), card:null, rows:[], sort:{ k:"edgeAbs", dir:-1 } };
+function desk(){ return DESKS[state.sport]; }
+function fmt(n,d){ if(n==null||Number.isNaN(Number(n))) return "—"; const v=Number(n); return (v>0?"+":"")+v.toFixed(d==null?1:d); }
+function pct(n){ return n==null?"—":(Number(n)*100).toFixed(0)+"%"; }
+function american(n){ if(n==null) return "—"; const v=Number(n); return (v>0?"+":"")+v; }
+function decorate(card){
+  return (card.props||[]).map((p,i)=>({...p, rank0:i, edgeAbs:Math.abs(Number(p.edge)||0), playRank:{OVER:0,UNDER:0,WATCH:1,PASS:2}[p.play]??3, market_label:p.market_label||p.market}));
+}
+function applyFilters(rows){
+  const q=document.getElementById("q").value.trim().toLowerCase();
+  const play=document.getElementById("play").value;
+  const market=document.getElementById("market").value;
+  const n=Number(document.getElementById("n").value);
+  let out=rows.slice();
+  if(q) out=out.filter(p=>[p.player,p.team,p.opp,p.market,p.market_label,p.when].join(" ").toLowerCase().includes(q));
+  if(play) out=out.filter(p=>p.play===play);
+  if(market) out=out.filter(p=>p.market===market);
+  const {k,dir}=state.sort;
+  out.sort((a,b)=>{
+    if(k==="play") return dir*((a.playRank)-(b.playRank))|| (b.edgeAbs-a.edgeAbs);
+    const va=a[k], vb=b[k];
+    if(typeof va==="string"||typeof vb==="string") return dir*String(va||"").localeCompare(String(vb||""));
+    return dir*((Number(va)||0)-(Number(vb)||0));
+  });
+  return out.slice(0,n).map((p,i)=>({...p, rank:i+1}));
+}
+function renderTable(rows){
+  const tb=document.getElementById("tbody");
+  tb.innerHTML=rows.map(p=>`<tr data-id="${p.id}"><td>${p.rank}</td><td>${p.player} <span class="tiny">${p.team} vs ${p.opp}</span></td><td>${p.market_label}</td><td>${p.line??"—"}</td><td>${p.proj??"—"}</td><td class="${Number(p.edge)>=0?"pos":"neg"}">${fmt(p.edge)}</td><td class="pct">${pct(p.p_over)}</td><td class="grade g-${p.play}">${p.play}</td><td>${p.when||""}</td><td>${american(p.price)}</td></tr>`).join("");
+  tb.querySelectorAll("tr").forEach(tr=>{
+    tr.addEventListener("click",()=>{
+      tb.querySelectorAll("tr").forEach(x=>x.classList.remove("sel"));
+      tr.classList.add("sel");
+      renderDetail(rows.find(r=>r.id===tr.dataset.id));
+    });
+  });
+}
+function bar(label,value,cut){
+  const v=value==null?0:Math.abs(Number(value));
+  const max=Math.max(cut*1.6,v,0.01);
+  const pctW=Math.max(0,Math.min(100,(v/max)*100));
+  return `<div><div class="bar-lab"><span>${label}</span><span>${value==null?"—":Number(value).toFixed(2)} / ${cut}</span></div><div class="track"><div class="fill ${value!=null&&v>=cut?"ok":""}" style="width:${pctW}%"></div></div></div>`;
+}
+function renderDetail(p){
+  if(!p) return;
+  document.getElementById("detail").innerHTML=`<div style="font-weight:700">${p.player}</div><div class="tiny">${p.team} vs ${p.opp} · ${p.when||""} · ${p.pos||""}</div><div class="row" style="margin:8px 0"><span class="pill">${p.market_label} ${p.line??""}</span><span class="pill">proj ${p.proj??"—"}</span><span class="pill">Δ ${fmt(p.edge)}</span><span class="pill grade g-${p.play}">${p.play}</span></div><p class="tiny">${p.note||""}</p><div class="bars" style="margin-top:10px">${bar("|edge|",p.edgeAbs,state.sport==="mlb"?0.6:12)}${bar("P(over)",p.p_over,0.58)}${bar("sigma",p.sigma,state.sport==="mlb"?1.5:40)}</div><p class="tiny" style="margin-top:10px">Book ${p.book||"—"} ${american(p.price)} · units ${p.units??0}</p>`;
+}
+function paint(){
+  if(!state.card) return;
+  const rows=applyFilters(state.rows);
+  renderTable(rows);
+  const c=state.card;
+  const watch=(c.props||[]).filter(p=>p.play==="WATCH"||p.play==="OVER"||p.play==="UNDER").length;
+  document.getElementById("meta").textContent=`${c.status} · ${c.date||("W"+c.week)} · ${(c.props||[]).length} props · ${watch} live tags · ${c.disclaimer||""}`;
+}
+function fillMarkets(rows){
+  const sel=document.getElementById("market"); const keep=sel.value;
+  const markets=[...new Set(rows.map(p=>p.market).filter(Boolean))].sort();
+  sel.innerHTML=`<option value="">All markets</option>`+markets.map(m=>`<option>${m}</option>`).join("");
+  if(markets.includes(keep)) sel.value=keep;
+}
+function setChrome(){
+  document.title=desk().label;
+  document.getElementById("title").textContent=desk().label;
+  document.getElementById("sports").innerHTML=`<a href="?sport=nfl" class="${state.sport==="nfl"?"on":""}">NFL</a><a href="?sport=mlb" class="${state.sport==="mlb"?"on":""}">MLB</a>`;
+}
+async function loadCard(){
+  const res=await fetch(desk().feed+"?t="+Date.now());
+  if(!res.ok) throw new Error("Feed "+res.status);
+  state.card=await res.json();
+  state.rows=decorate(state.card);
+  fillMarkets(state.rows); setChrome();
+  document.getElementById("sub").textContent=state.card.disclaimer||"Player props. Research only.";
+  paint();
+}
+function exportRows(kind){
+  const rows=applyFilters(state.rows);
+  const slim=rows.map(p=>({player:p.player,team:p.team,opp:p.opp,market:p.market_label,line:p.line,proj:p.proj,edge:p.edge,p_over:p.p_over,play:p.play,when:p.when,price:p.price,note:p.note}));
+  const stamp=state.card.date||("w"+state.card.week);
+  if(kind==="json"){ const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([JSON.stringify({sport:state.sport,stamp,rows:slim},null,2)],{type:"application/json"})); a.download=`${state.sport}-desk-${stamp}.json`; a.click(); return; }
+  const cols=Object.keys(slim[0]||{player:1});
+  const csv=[cols.join(","),...slim.map(r=>cols.map(c=>{const v=r[c]==null?"":String(r[c]); return /[",\n]/.test(v)?`"${v.replaceAll('"','""')}"`:v;}).join(","))].join("\n");
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download=`${state.sport}-desk-${stamp}.csv`; a.click();
+}
+document.getElementById("load").onclick=()=>loadCard().catch(e=>{document.getElementById("meta").innerHTML=`<span class="err">${e.message}</span>`;});
+document.getElementById("q").oninput=paint;
+document.getElementById("play").onchange=paint;
+document.getElementById("market").onchange=paint;
+document.getElementById("n").onchange=paint;
+document.getElementById("csv").onclick=()=>exportRows("csv");
+document.getElementById("json").onclick=()=>exportRows("json");
+document.querySelectorAll("th[data-k]").forEach(th=>{ th.onclick=()=>{ const map={edge:"edgeAbs"}; const key=map[th.dataset.k]||th.dataset.k; state.sort={k:key, dir:state.sort.k===key?-state.sort.dir:(key==="player"||key==="when"?1:-1)}; paint(); }; });
+setChrome();
+loadCard().catch(e=>{document.getElementById("meta").innerHTML=`<span class="err">${e.message}</span>`;});
+</script>
+</body>
+</html>
