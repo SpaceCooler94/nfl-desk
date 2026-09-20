@@ -1,10 +1,24 @@
 # NFL Desk — player props
 
-Scriptable iOS client + JSON feed. **Props only.** Sides/totals are out of the card.
+Scriptable iOS client + JSON feed. **Props only.**
+
+The repo **always** ships the xDESK game-sheet layout. That is the product.
 
 ```
-feed/current.json          ← Scriptable reads this
-scriptable/NFL-Desk.js     ← paste into Scriptable
+WEEK 2          NFL · GAME SHEET                              xDESK
+JAGUARS AT BRONCOS
+[teal AWAY | AT | orange HOME]
+SPREAD · TOTAL · KICKOFF · ROOF
+PROPS AT A GLANCE     PLAYER · PROJ · LINE · GAP · GRADE
+KEY MATCHUPS          0–100 badges
+```
+
+Do not replace this with a native UITable, a neon prop board, or a list-only view. If the sheet and the feed disagree, fix the feed.
+
+```
+feed/current.json          ← Scriptable + web read this
+scriptable/NFL-Desk.js     ← paste into Scriptable (WebView sheet)
+web/index.html             ← same sheet in the browser
 python/props.py            ← projection helpers
 ```
 
@@ -12,11 +26,29 @@ python/props.py            ← projection helpers
 
 https://raw.githubusercontent.com/SpaceCooler94/nfl-desk/main/feed/current.json
 
+Sheet preview:
+
+https://htmlpreview.github.io/?https://raw.githubusercontent.com/SpaceCooler94/nfl-desk/main/web/index.html
+
 ## Install
 
 1. Scriptable → + → paste `scriptable/NFL-Desk.js` → name it `NFL Desk`.
-2. Run. You get tonight's DET @ BUF prop board.
-3. Optional medium widget on the same script (top WATCH row).
+2. Run. Pick a game. You get the game sheet.
+3. Optional medium widget on the same script.
+
+Re-paste the script after a layout commit. The feed updates on its own (`?t=Date.now()`).
+
+## Layout contract (do not drift)
+
+| Surface | Must render |
+|---|---|
+| `scriptable/NFL-Desk.js` | WebView game sheet (banner, 4 pills, props table, key matchups) |
+| `web/index.html` | Same sheet, fed by `feed/current.json` |
+| `feed/current.json` | `games[]` + `props[]`. Optional `looks[]` on a game. |
+
+Pills are always **SPREAD / TOTAL / KICKOFF / ROOF**.
+Table columns are always **PLAYER / PROJ / LINE / GAP / GRADE**.
+Gap is green if `proj >= line`, red otherwise. Grade is pink.
 
 ## Card fields that matter
 
@@ -32,20 +64,11 @@ https://raw.githubusercontent.com/SpaceCooler94/nfl-desk/main/feed/current.json
 
 `WATCH` = the number is interesting. It is not a ticket until `status` is `LIVE` and juice is tolerable.
 
-## How the prop model is supposed to work
+## Daily loop
 
-Do not project yards from Week 1 box scores raw.
+Morning: injuries + inactives
+Noon: push `feed/current.json` (sheet stays the same file)
+Kickoff: lock
+Night: grade vs close
 
-1. Last-season per-game mean as prior (8-game trailing, not full season if role changed).
-2. Shrink current-season games toward that prior. Week 2 prior weight is heavy (`k ≈ 6`).
-3. Volume first, efficiency second. Receptions and carries stabilize before yards.
-4. Opponent adjust with defense vs position (pass EPA allowed to WR/TE/RB, rush EPA allowed).
-5. Convert mean to P(over) with a position-market sigma. Passing yards sigma is ~60, not 15.
-6. Bet the over only if `p_over` beats vig-removed implied and `|proj-line|` is a real fraction of sigma.
-7. Refuse −125 or worse unless the edge is large. Gibbs 18.5 carries at −128 is a pass even if volume is real.
-
-Anytime TD is a different model (opportunity × red-zone share × vulture risk). Do not treat it like a yard total.
-
-## TNF note
-
-The checked-in card is a **seed** so the phone works before kickoff. Lines were pulled from public Week 2 writeups (DK / MGM / FanDuel / Underdog / Betr). They will move. Re-price before you even think about a unit.
+The checked-in card is a **seed** so the phone works before kickoff. Lines move. Re-price before a unit.
