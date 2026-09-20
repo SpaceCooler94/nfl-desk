@@ -1,16 +1,36 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "NFL Desk player-prop card",
+  "title": "NFL Desk xDESK game sheet",
   "type": "object",
-  "required": ["season", "week", "status", "card_type", "props"],
+  "required": ["season", "week", "status", "card_type", "games", "props"],
   "properties": {
     "card_type": { "const": "player_props" },
     "status": { "enum": ["SEED_PRIOR", "LIVE"] },
+    "layout": { "const": "xdesk-sheet" },
+    "games": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "away", "home"],
+        "properties": {
+          "id": { "type": "string" },
+          "when": { "type": "string" },
+          "away": { "type": "string" },
+          "home": { "type": "string" },
+          "spread": { "type": "string" },
+          "total": { "type": ["number", "string", "null"] },
+          "roof": { "type": "string" },
+          "away_implied": { "type": ["number", "null"] },
+          "home_implied": { "type": ["number", "null"] },
+          "looks": { "type": "array" }
+        }
+      }
+    },
     "props": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "player", "team", "opp", "market", "play"],
+        "required": ["id", "player", "team", "opp", "market", "play", "game_id"],
         "properties": {
           "market": {
             "enum": [
@@ -21,12 +41,8 @@
           },
           "line": { "type": ["number", "null"] },
           "proj": { "type": ["number", "null"] },
-          "edge": {
-            "description": "proj - line. Positive = model likes the over.",
-            "type": ["number", "null"]
-          },
+          "edge": { "type": ["number", "null"] },
           "p_over": { "type": ["number", "null"] },
-          "price": { "description": "American odds on the over / yes", "type": ["integer", "null"] },
           "play": { "enum": ["OVER", "UNDER", "WATCH", "PASS"] }
         }
       }
