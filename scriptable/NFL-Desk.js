@@ -1,32 +1,24 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
 // icon-color: blue; icon-glyph: football;
-// NFL Desk — neon prop board WebView + native table fallback
+// NFL Desk — opens the game-sheet layout from the reference card.
 // Private repo: Keychain.set("nflDeskGithubToken", "ghp_...")
 
 const OWNER = "SpaceCooler94";
 const REPO = "nfl-desk";
 const BRANCH = "main";
 const FEED_PATH = "feed/current.json";
+const SPORT = "nfl";
+const TOKEN_KEY = "nflDeskGithubToken";
+const UA = "nfl-desk-scriptable";
 
 const NAMES = {
-  DET: "LIONS", BUF: "BILLS", CAR: "PANTHERS", ATL: "FALCONS",
-  MIN: "VIKINGS", CHI: "BEARS", PHI: "EAGLES", TEN: "TITANS",
-  PIT: "STEELERS", NE: "PATRIOTS", GB: "PACKERS", NYJ: "JETS",
-  CLE: "BROWNS", TB: "BUCCANEERS", NO: "SAINTS", BAL: "RAVENS",
-  CIN: "BENGALS", HOU: "TEXANS", JAX: "JAGUARS", DEN: "BRONCOS",
-  LV: "RAIDERS", LAC: "CHARGERS", MIA: "DOLPHINS", SF: "49ERS",
-  SEA: "SEAHAWKS", ARI: "CARDINALS", WSH: "COMMANDERS", DAL: "COWBOYS",
-  IND: "COLTS", KC: "CHIEFS", NYG: "GIANTS", LAR: "RAMS"
-};
-
-const C = {
-  ink: new Color("#F4F6FB"),
-  mute: new Color("#9AA3B2"),
-  good: new Color("#3DDC97"),
-  bad: new Color("#FF6B6B"),
-  pink: new Color("#FF2D7B"),
-  bg: new Color("#0B0D12")
+  DET:"LIONS",BUF:"BILLS",CAR:"PANTHERS",ATL:"FALCONS",MIN:"VIKINGS",CHI:"BEARS",
+  PHI:"EAGLES",TEN:"TITANS",PIT:"STEELERS",NE:"PATRIOTS",GB:"PACKERS",NYJ:"JETS",
+  CLE:"BROWNS",TB:"BUCCANEERS",NO:"SAINTS",BAL:"RAVENS",CIN:"BENGALS",HOU:"TEXANS",
+  JAX:"JAGUARS",DEN:"BRONCOS",LV:"RAIDERS",LAC:"CHARGERS",MIA:"DOLPHINS",SF:"49ERS",
+  SEA:"SEAHAWKS",ARI:"CARDINALS",WSH:"COMMANDERS",DAL:"COWBOYS",IND:"COLTS",
+  KC:"CHIEFS",NYG:"GIANTS",LAR:"RAMS"
 };
 
 function feedUrl() {
@@ -36,11 +28,11 @@ function apiUrl() {
   return "https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + FEED_PATH + "?ref=" + BRANCH;
 }
 function token() {
-  try { if (Keychain.contains("nflDeskGithubToken")) return Keychain.get("nflDeskGithubToken"); } catch (e) {}
+  try { if (Keychain.contains(TOKEN_KEY)) return Keychain.get(TOKEN_KEY); } catch (e) {}
   return null;
 }
 async function loadCard() {
-  const hdrs = { "User-Agent": "nfl-desk-scriptable" };
+  const hdrs = { "User-Agent": UA };
   const tok = token();
   if (tok) hdrs.Authorization = "Bearer " + tok;
   try {
@@ -57,25 +49,15 @@ async function loadCard() {
 }
 function nameOf(ab) { return NAMES[ab] || ab || ""; }
 function fmt(n) {
-  if (n === null || n === undefined || isNaN(n)) return "—";
+  if (n === null || n === undefined || isNaN(Number(n))) return "—";
   const v = Number(n);
   return (v > 0 ? "+" : "") + v.toFixed(1);
-}
-function american(n) {
-  if (n === null || n === undefined) return "";
-  const v = Number(n);
-  return (v > 0 ? "+" : "") + String(v);
-}
-function impliedOver(o) {
-  if (o === null || o === undefined) return null;
-  o = Number(o);
-  return o < 0 ? (-o) / ((-o) + 100) : 100 / (o + 100);
 }
 function grade(p) {
   const z = p.sigma ? Math.abs(Number(p.edge) || 0) / Number(p.sigma) : Math.abs(Number(p.edge) || 0);
   if (p.play === "OVER" || p.play === "UNDER") return "A";
-  if (p.play === "WATCH" && z >= 0.45) return "A-";
-  if (p.play === "WATCH") return "B+";
+  if (Math.abs(Number(p.edge) || 0) >= 1.0 && z >= 0.7) return "A";
+  if (p.play === "WATCH") return "A-";
   return "C";
 }
 function gamesFrom(card) {
@@ -87,59 +69,64 @@ function gamesFrom(card) {
   return [...m.values()];
 }
 function propsFor(card, gid) {
-  return (card.props || []).filter((p) => p.game_id === gid).sort((a, b) => Math.abs(b.edge || 0) - Math.abs(a.edge || 0));
-}
-function esc(s) {
-  return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
-}
-function yardsFor(g, team, rows) {
-  if (g.best_yards) return g.best_yards.filter((x) => x.team === team);
-  return rows.filter((p) => p.team === team).slice(0, 2).map((p) => ({
-    player: p.player, pos: p.pos, team: p.team, proj: p.proj,
-    market: p.market_label || p.market, vs: p.note || "", tag: p.play || ""
+  const rows = (card.props || []).filter((p) => p.game_id === gid)
+    .sort((a, b) => Math.abs(b.edge || 0) - Math.abs(a.edge || 0));
+  if (rows.length) return rows;
+  const g = (card.games || []).find((x) => x.id === gid) || {};
+  return (g.best_yards || []).map((y, i) => ({
+    player: y.player, pos: y.pos, team: y.team, market: y.market, market_label: y.market,
+    proj: y.proj, line: y.line != null ? y.line : y.proj, edge: y.edge != null ? y.edge : 0,
+    play: y.tag || "WATCH", note: y.vs || "", game_id: gid, id: "yards_" + gid + "_" + i
   }));
 }
-function tdsFor(g, team) {
-  return (g.td_angles || []).filter((x) => x.team === team);
+function esc(s) {
+  return String(s == null ? "" : s).replace(/&/g, "&").replace(/</g, "<").replace(/"/g, """);
 }
-function css() {
-  return "*{box-sizing:border-box}html,body{margin:0;background:#041028;color:#e8f0ff;font:13px/1.35 -apple-system}.wrap{max-width:980px;margin:0 auto;padding:12px 10px 36px}.top{display:flex;justify-content:space-between;color:#7fd7ff;font-size:10px;letter-spacing:.14em;font-weight:800}.hero{text-align:center;margin:6px 0 10px}.hero .k{color:#ff4fd8;font-size:11px;letter-spacing:.2em;font-weight:800}.hero h1{margin:4px 0;font-size:34px}.hero h1 .a{color:#c084fc}.hero h1 .h{color:#fb7185}.hero .d{color:#9fb4d9;font-size:12px}.board{display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:6px;background:#0b1a3a;border:2px solid #2ee5ff;border-radius:10px;padding:8px;margin-bottom:10px}.imp{text-align:center}.imp .n{font-size:28px;font-weight:900}.imp.min .n{color:#d946ef}.imp.chi .n{color:#fb7185}.imp .l{font-size:10px;letter-spacing:.1em}.mid{text-align:center;border-left:1px solid #1e3a6a;border-right:1px solid #1e3a6a}.mid .ou{font-size:15px;font-weight:800;color:#7dd3fc}.mid .tag{color:#f472b6;font-weight:800}.mid .sp{color:#cbd5e1;font-size:12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}.card{background:#071433;border-radius:10px;padding:8px}.card.min{border:2px solid #c026d3}.card.chi{border:2px solid #f97316}.card h2{margin:0 0 6px;font-size:12px}.row{display:grid;grid-template-columns:1.4fr .7fr 1.1fr .7fr;gap:4px;align-items:center;padding:6px 2px;border-top:1px solid #1e3a6a}.pn{font-weight:800}.ps{font-size:10px;color:#93a4c3}.proj{font-size:18px;font-weight:900;text-align:center}.min .proj{color:#e879f9}.chi .proj{color:#fdba74}.vs{font-size:10px;color:#9fb4d9}.tag{font-size:10px;font-weight:800;color:#67e8f9;text-align:right}.td .row{grid-template-columns:1.5fr .8fr .8fr}.pct{font-size:22px;font-weight:900;text-align:center}.min .pct{color:#f0abfc}.chi .pct{color:#fdba74}.run{background:#071433;border:2px solid #38bdf8;border-radius:10px;padding:10px;margin-bottom:8px}.run h2{margin:0 0 6px;color:#7dd3fc}.run ul{margin:0;padding-left:16px}.side{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.call{background:#0a1b3d;border:1px solid #1e3a6a;border-radius:8px;padding:8px;text-align:center}.call b{display:block;color:#7dd3fc;font-size:11px}.def{background:#071433;border-radius:10px;padding:8px}.def.min{border:2px solid #c026d3}.def.chi{border:2px solid #f97316}.rank{display:flex;justify-content:space-between}.rank .big{font-size:22px;font-weight:900}.soft{color:#fdba74}.tough{color:#67e8f9}.bar{display:grid;grid-template-columns:28px 1fr 36px;gap:6px;align-items:center;margin:3px 0;font-size:11px}.fill{height:8px;background:#334155;border-radius:4px;overflow:hidden}.fill span{display:block;height:8px}.why{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.why span{background:#0b1a3a;border:1px solid #38bdf8;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:800}.foot{display:flex;justify-content:space-between;margin-top:10px;color:#7dd3fc;font-size:11px;font-weight:800}";
+function badgeClass(score) {
+  const n = Number(score);
+  if (n >= 70) return "g";
+  if (n <= 20) return "r";
+  return "y";
 }
-function yardRow(x) {
-  return "<div class=\"row\"><div><div class=\"pn\">" + esc(x.player) + "</div><div class=\"ps\">" + esc([x.pos, x.team].filter(Boolean).join(" · ")) + "</div></div><div class=\"proj\">" + esc(x.proj != null ? x.proj : "—") + "</div><div class=\"vs\">" + esc(x.vs || x.market || "") + "</div><div class=\"tag\">" + esc(x.tag || "") + "</div></div>";
+function looksFor(g, rows) {
+  if (g.looks && g.looks.length) return g.looks;
+  return rows.slice(0, 8).map((p) => ({
+    side: p.team === g.home ? "home" : "away",
+    player: p.player, pos: p.pos || "",
+    note: (p.market_label || p.market || "") + " · " + (p.play || ""),
+    score: p.p_over != null ? Math.round(Number(p.p_over) * 100) : 50
+  }));
 }
-function tdRow(x) {
-  return "<div class=\"row\"><div><div class=\"pn\">" + esc(x.player) + "</div><div class=\"ps\">" + esc([x.pos, x.team].filter(Boolean).join(" · ")) + "</div></div><div class=\"pct\">" + esc(x.pct != null ? x.pct + "%" : "—") + "</div><div class=\"tag\">" + esc(x.market || "ANYTIME TD") + "</div></div>";
+function sheetCSS() {
+  return ":root{--bg:#0a0c10;--card:#141820;--ink:#f3f5f8;--mute:#8b93a2;--line:#262b34;--pink:#ff2d7b;--good:#3DDC97;--bad:#e35d6a}*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.35 -apple-system,system-ui,sans-serif}.wrap{max-width:920px;margin:0 auto;padding:16px 14px 48px}.kicker{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.kicker-l{font-size:11px;letter-spacing:.14em;color:var(--mute);font-weight:700}.kicker-l b{display:inline-block;background:#1c212b;color:#fff;padding:3px 8px;border-radius:4px;margin-right:8px;letter-spacing:.12em}.logo{font-weight:900;font-size:26px;letter-spacing:-.04em}.logo span{color:var(--pink)}h1{font-size:30px;line-height:1;margin:8px 0 6px;letter-spacing:-.03em;font-weight:800}.meta{color:var(--mute);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}.teams{display:grid;grid-template-columns:1fr 42px 1fr;border-radius:12px;overflow:hidden;margin-bottom:10px}.away{background:linear-gradient(90deg,#0a3d44,#0e5560);padding:16px 14px}.home{background:linear-gradient(90deg,#9a3a12,#d2551a);padding:16px 14px;text-align:right}.lab{font-size:10px;letter-spacing:.16em;opacity:.75}.nm{font-size:20px;font-weight:800;margin-top:2px}.imp{font-size:11px;opacity:.88;margin-top:2px;letter-spacing:.04em}.at{display:grid;place-items:center;font-weight:800;background:#0a0c10}.pills{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 12px}.pill{background:#12151c;border:1px solid #232833;border-radius:10px;padding:11px 6px;text-align:center}.pill .k{font-size:9px;color:var(--mute);letter-spacing:.14em;font-weight:700}.pill .v{font-size:15px;font-weight:800;margin-top:4px}.panel{background:#12151c;border:1px solid #232833;border-radius:12px;padding:12px 12px 6px;margin-bottom:10px}.ph{display:flex;justify-content:space-between;align-items:center;margin:2px 0 8px}.ph b{font-size:12px;letter-spacing:.1em;border-left:3px solid var(--pink);padding-left:8px}.ph span{font-size:10px;color:var(--mute);letter-spacing:.08em}table{width:100%;border-collapse:collapse}th{text-align:left;font-size:10px;color:var(--mute);letter-spacing:.12em;font-weight:700;padding:6px 4px}th.r,td.r{text-align:right}td{padding:11px 4px;border-top:1px solid #232833;vertical-align:middle}.who{display:flex;gap:10px;align-items:center}.dot{width:22px;height:22px;border-radius:50%;background:#1d232d;display:grid;place-items:center;font-size:8px;font-weight:800}.pn{font-weight:700;font-size:15px}.ps{font-size:11px;color:var(--mute);margin-top:1px}.pos{color:var(--good);font-weight:700}.neg{color:var(--bad);font-weight:700}.grade{font-weight:800;color:var(--pink);font-size:16px}.cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}.col h3{font-size:11px;color:var(--mute);letter-spacing:.08em;font-weight:700;margin:0 0 6px}.mrow{display:flex;justify-content:space-between;align-items:center;padding:9px 2px;border-top:1px solid #232833}.badge{min-width:34px;text-align:center;font-weight:800;padding:4px 6px;border-radius:6px;font-size:13px}.g{background:#16361f;color:#3DDC97}.y{background:#3a3210;color:#e8c547}.r{background:#3a1518;color:#ff6b6b}.foot{display:flex;justify-content:space-between;color:var(--mute);font-size:11px;margin-top:8px}.foot b{color:var(--pink)}";
 }
-function bars(def) {
-  if (!def || !def.by_pos) return "";
-  const colors = { RB: "#facc15", WR: "#4ade80", TE: "#f87171", QB: "#34d399" };
-  return Object.keys(def.by_pos).map((k) => {
-    const v = Number(def.by_pos[k]);
-    const w = Math.min(100, Math.round((v / 1.5) * 100));
-    return "<div class=\"bar\"><div>" + k + "</div><div class=\"fill\"><span style=\"width:" + w + "%;background:" + (colors[k] || "#38bdf8") + "\"></span></div><div>" + v.toFixed(2) + "</div></div>";
-  }).join("");
+function lookCol(title, items) {
+  const body = items.map((x) => "<div class=\"mrow\"><div><div class=\"pn\">" + esc(x.player) + "</div><div class=\"ps\">" + esc([x.pos, x.note].filter(Boolean).join(" · ")) + "</div></div><div class=\"badge " + badgeClass(x.score) + "\">" + esc(x.score) + "</div></div>").join("") || "<div class=\"ps\">No tagged looks</div>";
+  return "<div class=\"col\"><h3>" + esc(title) + "</h3>" + body + "</div>";
 }
-function give(def) {
-  if (!def || !def.give) return "";
-  return def.give.map((x) => "<div class=\"row\" style=\"grid-template-columns:1fr 40px 28px\"><div class=\"ps\">" + esc(x.name) + "</div><div>" + esc(x.pct) + "</div><div class=\"tag\">" + esc(x.grade) + "</div></div>").join("");
-}
-function boardHTML(card, g) {
+function sheetHTML(card, g) {
   const rows = propsFor(card, g.id);
-  const awayY = yardsFor(g, g.away, rows);
-  const homeY = yardsFor(g, g.home, rows);
-  const awayTD = tdsFor(g, g.away);
-  const homeTD = tdsFor(g, g.home);
-  const run = (g.rundown || []).map((t) => "<li>" + esc(t) + "</li>").join("") || "<li>" + esc(card.disclaimer || "Seed card.") + "</li>";
-  const script = g.script || (Number(g.total) >= 47 ? "SHOOTOUT" : "SCRIPT");
-  const aDef = (g.defense && g.defense[g.away]) || null;
-  const hDef = (g.defense && g.defense[g.home]) || null;
-  const why = (g.why || [g.spread, "PLAYER PROPS"]).map((t) => "<span>" + esc(t) + "</span>").join("");
-  return "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"/><style>" + css() + "</style></head><body><div class=\"wrap\"><div class=\"top\"><div>NFL DESK · EVERY PROP</div><div>WEEK " + esc(card.week || "") + "</div></div><div class=\"hero\"><div class=\"k\">SUNDAY NFL FOOTBALL</div><h1><span class=\"a\">" + esc(g.away) + "</span> @ <span class=\"h\">" + esc(g.home) + "</span></h1><div class=\"d\">" + esc([g.when, g.venue].filter(Boolean).join(" · ")) + "</div></div><div class=\"board\"><div class=\"imp min\"><div class=\"n\">" + esc(g.away_implied != null ? g.away_implied : "—") + "</div><div class=\"l\">" + esc(g.away) + " IMPLIED</div></div><div class=\"mid\"><div class=\"ou\">O/U " + esc(g.total != null ? g.total : "—") + "</div><div class=\"tag\">" + esc(script) + "</div><div class=\"sp\">" + esc(g.spread || "") + "</div></div><div class=\"imp chi\"><div class=\"n\">" + esc(g.home_implied != null ? g.home_implied : "—") + "</div><div class=\"l\">" + esc(g.home) + " IMPLIED</div></div></div><div class=\"grid\"><div class=\"card min\"><h2>BEST " + esc(g.away) + " YARDS</h2>" + awayY.map(yardRow).join("") + "</div><div class=\"card chi\"><h2>BEST " + esc(g.home) + " YARDS</h2>" + homeY.map(yardRow).join("") + "</div><div class=\"card min td\"><h2>TOP " + esc(g.away) + " TD ANGLES</h2>" + (awayTD.map(tdRow).join("") || "<div class=\"ps\">No TD angles tagged</div>") + "</div><div class=\"card chi td\"><h2>TOP " + esc(g.home) + " TD ANGLES</h2>" + (homeTD.map(tdRow).join("") || "<div class=\"ps\">No TD angles tagged</div>") + "</div></div><div class=\"run\"><h2>GAME RUNDOWN</h2><ul>" + run + "</ul><div class=\"side\"><div class=\"call\"><b>WEATHER</b>" + esc(g.weather || "CHECK LOCAL") + "</div><div class=\"call\"><b>QB WATCH</b>" + esc(g.qb_watch || "—") + "</div></div></div><div class=\"grid\">" + (hDef ? "<div class=\"def chi\"><h2>" + esc(g.home) + " DEFENSE</h2><div class=\"rank\"><div class=\"big\">" + esc(hDef.td_rank || "") + "</div><div class=\"soft\">" + esc(hDef.label || "") + " · " + esc(hDef.tds_allowed != null ? hDef.tds_allowed + " TDs/G" : "") + "</div></div>" + bars(hDef) + give(hDef) + "</div>" : "") + (aDef ? "<div class=\"def min\"><h2>" + esc(g.away) + " DEFENSE</h2><div class=\"rank\"><div class=\"big\">" + esc(aDef.td_rank || "") + "</div><div class=\"tough\">" + esc(aDef.label || "") + " · " + esc(aDef.tds_allowed != null ? aDef.tds_allowed + " TDs/G" : "") + "</div></div>" + bars(aDef) + give(aDef) + "</div>" : "") + "</div><div class=\"why\">" + why + "</div><div class=\"foot\"><div>xDESK</div><div>" + esc(card.status || "") + " · RESEARCH</div></div></div></body></html>";
+  const week = card.week ? ("WEEK " + card.week) : String(card.date || "").slice(5);
+  const sport = SPORT.toUpperCase();
+  const ai = g.away_implied != null ? ("IMPLIED " + g.away_implied) : (g.away_sp || "");
+  const hi = g.home_implied != null ? ("IMPLIED " + g.home_implied) : (g.home_sp || "");
+  const pills = SPORT === "mlb"
+    ? [["AWAY SP", g.away_sp || "—"],["HOME SP", g.home_sp || "—"],["PARK", g.park || "—"],["FIRST PITCH", g.when || "—"]]
+    : [["SPREAD", g.spread || "—"],["TOTAL", g.total != null ? String(g.total) : "—"],["KICKOFF", g.when || "—"],["ROOF", g.roof || "—"]];
+  const pillHTML = pills.map((x) => "<div class=\"pill\"><div class=\"k\">" + esc(x[0]) + "</div><div class=\"v\">" + esc(x[1]) + "</div></div>").join("");
+  const body = rows.map((p) => {
+    const gapCls = Number(p.edge) >= 0 ? "pos" : "neg";
+    return "<tr><td><div class=\"who\"><div class=\"dot\">" + esc(p.team || "") + "</div><div><div class=\"pn\">" + esc(p.player) + "</div><div class=\"ps\">" + esc([p.pos, p.market_label || p.market].filter(Boolean).join(" · ")) + "</div></div></div></td><td class=\"r\">" + (p.proj != null ? p.proj : "—") + "</td><td class=\"r\">" + (p.line != null ? p.line : "—") + "</td><td class=\"r " + gapCls + "\">" + fmt(p.edge) + "</td><td class=\"r grade\">" + grade(p) + "</td></tr>";
+  }).join("") || "<tr><td colspan=\"5\" class=\"ps\">No props for this game</td></tr>";
+  const looks = looksFor(g, rows);
+  const homeLooks = looks.filter((x) => x.side === "home" || x.team === g.home);
+  const awayLooks = looks.filter((x) => x.side === "away" || x.team === g.away);
+  const whenLine = [g.when, g.venue || g.park].filter(Boolean).join(" · ");
+  return "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\"/><style>" + sheetCSS() + "</style></head><body><div class=\"wrap\"><div class=\"kicker\"><div class=\"kicker-l\"><b>" + esc(week) + "</b> " + sport + " · GAME SHEET</div><div class=\"logo\"><span>x</span>DESK</div></div><h1>" + esc(nameOf(g.away)) + " AT " + esc(nameOf(g.home)) + "</h1><div class=\"meta\">" + esc(whenLine) + "</div><div class=\"teams\"><div class=\"away\"><div class=\"lab\">AWAY</div><div class=\"nm\">" + esc(nameOf(g.away)) + "</div><div class=\"imp\">" + esc(ai) + "</div></div><div class=\"at\">AT</div><div class=\"home\"><div class=\"lab\">HOME</div><div class=\"nm\">" + esc(nameOf(g.home)) + "</div><div class=\"imp\">" + esc(hi) + "</div></div></div><div class=\"pills\">" + pillHTML + "</div><div class=\"panel\"><div class=\"ph\"><b>PROPS AT A GLANCE</b><span>PROJ VS LINE</span></div><table><thead><tr><th>PLAYER</th><th class=\"r\">PROJ</th><th class=\"r\">LINE</th><th class=\"r\">GAP</th><th class=\"r\">GRADE</th></tr></thead><tbody>" + body + "</tbody></table></div><div class=\"panel\"><div class=\"ph\"><b>KEY MATCHUPS</b><span>SCORE 0 TO 100</span></div><div class=\"cols\">" + lookCol((g.home || "") + " OFFENSE VS " + (g.away || ""), homeLooks) + lookCol((g.away || "") + " OFFENSE VS " + (g.home || ""), awayLooks) + "</div></div><div class=\"foot\"><div><b>desk</b> · research</div><div>" + esc(card.status || "") + "</div></div></div></body></html>";
 }
-async function presentBoard(card, g) {
+async function presentSheet(card, g) {
   const wv = new WebView();
-  await wv.loadHTML(boardHTML(card, g));
+  await wv.loadHTML(sheetHTML(card, g));
   await wv.present(true);
 }
 async function pickGame(card) {
@@ -148,102 +135,61 @@ async function pickGame(card) {
   table.showSeparators = true;
   const head = new UITableRow();
   head.isHeader = true;
-  head.addText("NFL  PROP BOARDS");
+  head.addText(SPORT.toUpperCase() + "  GAME SHEETS");
   table.addRow(head);
   for (const g of games) {
+    const n = propsFor(card, g.id).length;
     const row = new UITableRow();
     row.height = 54;
     row.dismissOnSelect = true;
-    row.onSelect = async () => { await presentBoard(card, g); };
-    const t = row.addText(nameOf(g.away) + " @ " + nameOf(g.home) + "\n" + [g.when, g.spread, g.total].filter(Boolean).join(" · "));
+    row.onSelect = async () => { await presentSheet(card, g); };
+    const t = row.addText(nameOf(g.away) + " AT " + nameOf(g.home) + "\n" + (g.when || "") + " · " + n + " props");
     t.titleFont = Font.boldSystemFont(16);
     t.subtitleFont = Font.systemFont(11);
     table.addRow(row);
   }
-  const list = new UITableRow();
-  list.height = 44;
-  list.dismissOnSelect = true;
-  list.onSelect = async () => { await presentTable(card); };
-  list.addText("Open props list instead");
-  table.addRow(list);
   await table.present();
-}
-async function presentTable(card) {
-  const table = new UITable();
-  table.showSeparators = true;
-  const head = new UITableRow();
-  head.isHeader = true;
-  head.height = 40;
-  const tag = card.status === "SEED_PRIOR" ? "SEED" : "LIVE";
-  const h = head.addText("WEEK " + card.week + "  NFL  ·  GAME SHEET    " + tag);
-  h.titleFont = Font.boldSystemFont(13);
-  table.addRow(head);
-  for (const g of gamesFrom(card)) {
-    const rows = propsFor(card, g.id);
-    const title = new UITableRow();
-    title.height = 44;
-    const t = title.addText(nameOf(g.away) + " AT " + nameOf(g.home));
-    t.titleFont = Font.boldSystemFont(16);
-    table.addRow(title);
-    for (const p of rows) {
-      const row = new UITableRow();
-      row.height = 48;
-      row.onSelect = () => showProp(card, p);
-      const left = row.addText(p.player + "\n" + [p.pos, p.market_label || p.market].filter(Boolean).join(" · "));
-      left.widthWeight = 46;
-      const proj = row.addText(p.proj != null ? String(p.proj) : "—");
-      proj.widthWeight = 14;
-      const line = row.addText(p.line != null ? String(p.line) : "—");
-      line.widthWeight = 14;
-      const gap = row.addText(fmt(p.edge));
-      gap.widthWeight = 14;
-      gap.titleColor = Number(p.edge) >= 0 ? C.good : C.bad;
-      const grd = row.addText(grade(p));
-      grd.widthWeight = 12;
-      grd.titleColor = C.pink;
-      table.addRow(row);
-    }
-  }
-  await table.present();
-}
-async function showProp(card, p) {
-  const a = new Alert();
-  a.title = p.player;
-  a.message = [nameOf(p.team) + " vs " + nameOf(p.opp), (p.market_label || p.market) + " " + (p.line != null ? p.line : "—"), "Proj " + (p.proj != null ? p.proj : "—") + "  Gap " + fmt(p.edge), p.note || "", "Card: " + card.status].join("\n");
-  a.addAction("OK");
-  await a.present();
-}
-function topWatch(card) {
-  const rows = (card.props || []).slice().sort((a, b) => Math.abs(b.edge || 0) - Math.abs(a.edge || 0));
-  return rows.find((p) => p.play === "WATCH" || p.play === "OVER" || p.play === "UNDER") || rows[0];
 }
 function buildWidget(card) {
   const w = new ListWidget();
-  w.backgroundColor = new Color("#041028");
+  w.backgroundColor = new Color("#0a0c10");
   w.setPadding(12, 14, 12, 14);
   const games = gamesFrom(card);
   const g = games.find((x) => String(x.when || "").indexOf("FINAL") === -1) || games[0] || {};
-  const kicker = w.addText("NFL DESK  ·  WEEK " + card.week);
-  kicker.font = Font.boldSystemFont(10);
-  kicker.textColor = new Color("#7fd7ff");
-  const title = w.addText((g.away || "") + " @ " + (g.home || ""));
-  title.font = Font.boldSystemFont(20);
+  const p = propsFor(card, g.id)[0];
+  const k = w.addText((card.week ? ("WEEK " + card.week) : (card.date || "")) + "  ·  GAME SHEET");
+  k.font = Font.boldSystemFont(10);
+  k.textColor = new Color("#8b93a2");
+  const title = w.addText(nameOf(g.away) + " AT " + nameOf(g.home));
+  title.font = Font.boldSystemFont(16);
   title.textColor = Color.white();
-  const pills = w.addText([g.spread, g.total != null ? "O/U " + g.total : null].filter(Boolean).join("   "));
-  pills.font = Font.boldSystemFont(12);
-  pills.textColor = new Color("#f472b6");
+  title.minimumScaleFactor = 0.6;
+  const sub = w.addText([g.spread || g.park, g.total != null ? String(g.total) : g.when].filter(Boolean).join("   "));
+  sub.font = Font.systemFont(11);
+  sub.textColor = new Color("#8b93a2");
+  w.addSpacer(8);
+  if (p) {
+    const nm = w.addText(p.player);
+    nm.font = Font.boldSystemFont(15);
+    nm.textColor = Color.white();
+    const gap = w.addText((p.proj != null ? p.proj : "—") + " vs " + (p.line != null ? p.line : "—") + "   " + fmt(p.edge) + "   " + grade(p));
+    gap.font = Font.mediumSystemFont(12);
+    gap.textColor = Number(p.edge) >= 0 ? new Color("#3DDC97") : new Color("#e35d6a");
+  }
   w.addSpacer();
-  const foot = w.addText(String(g.away_implied || "") + "  –  " + String(g.home_implied || ""));
-  foot.font = Font.boldSystemFont(16);
-  foot.textColor = new Color("#c084fc");
+  const f = w.addText("xDESK");
+  f.font = Font.boldSystemFont(12);
+  f.textColor = new Color("#ff2d7b");
   return w;
 }
 async function run() {
   let card;
   try { card = await loadCard(); }
   catch (e) {
-    if (config.runsInWidget) { const w = new ListWidget(); w.addText("Feed failed"); Script.setWidget(w); Script.complete(); return; }
-    const a = new Alert(); a.title = "NFL Desk feed failed"; a.message = String(e); a.addAction("OK"); await a.present(); Script.complete(); return;
+    if (config.runsInWidget) {
+      const w = new ListWidget(); w.addText("Feed failed"); Script.setWidget(w); Script.complete(); return;
+    }
+    const a = new Alert(); a.title = "Desk feed failed"; a.message = String(e); a.addAction("OK"); await a.present(); Script.complete(); return;
   }
   if (config.runsInWidget) { Script.setWidget(buildWidget(card)); Script.complete(); return; }
   await pickGame(card);
