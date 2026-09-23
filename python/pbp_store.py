@@ -2,7 +2,7 @@
 """Load nflverse play-by-play into a slim local parquet lake.
 
 Source of truth is nflverse-data GitHub releases (same files nflreadpy/nflreadr
-serve). Default seasons: 2023-2025. 2026 can be appended in-season.
+serve). Default seasons: 2023-2026. Current-season files refresh when stale.
 """
 
 from __future__ import annotations
@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import time
 import urllib.request
 from pathlib import Path
 
@@ -20,7 +21,10 @@ DATA = ROOT / "data"
 PBP_URL = "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_{season}.parquet"
 FTN_URL = "https://github.com/nflverse/nflverse-data/releases/download/ftn_charting/ftn_charting_{season}.parquet"
 
-DEFAULT_SEASONS = (2023, 2024, 2025)
+DEFAULT_SEASONS = (2023, 2024, 2025, 2026)
+CURRENT_SEASON = 2026
+STALE_HOURS = 12
+SEASONS_CSV = ",".join(str(s) for s in DEFAULT_SEASONS)
 
 KEEP = [
     "game_id",
@@ -117,6 +121,12 @@ def slim_path(seasons: list[int] | tuple[int, ...]) -> Path:
     return DATA / f"pbp_slim_{tag}.parquet"
 
 
+def _stale(path: Path, hours: float = STALE_HOURS) -> bool:
+    if not path.exists() or path.stat().st_size <= 0:
+        return True
+    return (time.time() - path.stat().st_mtime) > hours * 3600
+
+
 def _get(url: str, dest: Path) -> Path:
     dest.parent.mkdir(parents=True, exist_ok=True)
     if dest.exists() and dest.stat().st_size > 0:
@@ -160,16 +170,19 @@ def enrich(df: pd.DataFrame) -> pd.DataFrame:
 def load_season(season: int, force: bool = False) -> pd.DataFrame:
     DATA.mkdir(parents=True, exist_ok=True)
     raw = DATA / f"play_by_play_{season}.parquet"
-    if force and raw.exists():
-        raw.unlink()
+    live = season >= CURRENT_SEASON
+    if force or (live and _stale(raw)):
+        if raw.exists():
+            raw.unlink()
     _get(PBP_URL.format(season=season), raw)
     df = pd.read_parquet(raw)
     cols = [c for c in KEEP if c in df.columns]
     df = df[cols].copy()
     ftn_raw = DATA / f"ftn_charting_{season}.parquet"
     try:
-        if force and ftn_raw.exists():
-            ftn_raw.unlink()
+        if force or (live and _stale(ftn_raw)):
+            if ftn_raw.exists():
+                ftn_raw.unlink()
         _get(FTN_URL.format(season=season), ftn_raw)
         ftn = pd.read_parquet(ftn_raw)
         fcols = [c for c in FTN_KEEP if c in ftn.columns]
@@ -205,19 +218,17 @@ def refresh(seasons: list[int], force: bool = False) -> Path:
 def load_slim(seasons: list[int] | None = None) -> pd.DataFrame:
     seasons = list(seasons or DEFAULT_SEASONS)
     dest = slim_path(seasons)
-    if not dest.exists():
-        matches = sorted(DATA.glob("pbp_slim_*.parquet"))
-        if matches:
-            dest = matches[-1]
-        else:
-            refresh(seasons)
-            dest = slim_path(seasons)
+    raw_current = DATA / f"play_by_play_{max(seasons)}.parquet"
+    missing_current = max(seasons) >= CURRENT_SEASON and _stale(raw_current)
+    if not dest.exists() or missing_current:
+        refresh(seasons)
+        dest = slim_path(seasons)
     return pd.read_parquet(dest)
 
 
 def main() -> int:
     p = argparse.ArgumentParser(description="Build slim nflverse PBP parquet")
-    p.add_argument("--seasons", default="2023,2024,2025")
+    p.add_argument("--seasons", default=SEASONS_CSV)
     p.add_argument("--force", action="store_true")
     args = p.parse_args()
     seasons = [int(s) for s in args.seasons.split(",") if s.strip()]

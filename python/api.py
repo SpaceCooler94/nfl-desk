@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 import sys
-from functools import lru_cache
 from pathlib import Path
 
 from fastapi import FastAPI, Query
@@ -28,7 +27,6 @@ app.add_middleware(
 )
 
 
-@lru_cache(maxsize=4)
 def _df(seasons: tuple[int, ...]):
     return load_slim(list(seasons))
 
@@ -88,7 +86,7 @@ def search_plays(
 @app.get("/reports/third-long-two-high")
 def third_long_two_high(
     team: str,
-    seasons: str = "2024,2025",
+    seasons: str = "2024,2025,2026",
     side: str = Query("offense", pattern="^(offense|defense)$"),
 ):
     seas = _seasons(seasons)
