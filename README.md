@@ -80,19 +80,19 @@ Public FTN does **not** include coverage family. 2-high is:
 python3 -m pip install -r requirements.txt
 cd python
 
-# 1. slim lake (2023-2025). Re-run after games.
-python3 pbp_store.py --seasons 2023,2024,2025
+# 1. slim lake (2023-2026). 2026 refreshes when older than 12h.
+python3 pbp_store.py --seasons 2023,2024,2025,2026
 
 # 2. situation search, EPA desc
 python3 search.py --posteam KC --down 3 --ydstogo-min 7 --two-high true --pass-only --limit 15
 
 # 3. scouting report
-python3 report_third_long.py --team KC --seasons 2024,2025 --side offense
+python3 report_third_long.py --team KC --seasons 2024,2025,2026 --side offense
 
 # API
 uvicorn api:app --port 8787
 # GET /search?posteam=KC&down=3&ydstogo_min=7&two_high=true&sort=epa
-# GET /reports/third-long-two-high?team=KC&seasons=2024,2025&side=offense
+# GET /reports/third-long-two-high?team=KC&seasons=2024,2025,2026&side=offense
 ```
 
 Parquet stays in `data/` and is gitignored. Unit tests: `cd python && python3 -m pytest test_search.py -q`

@@ -12,7 +12,7 @@ from pathlib import Path
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from pbp_store import DEFAULT_SEASONS, load_slim
+from pbp_store import DEFAULT_SEASONS, SEASONS_CSV, load_slim
 
 RESULT_COLS = [
     "season",
@@ -148,7 +148,7 @@ def _bool_arg(v: str | None) -> bool | None:
 
 def main() -> int:
     p = argparse.ArgumentParser(description="Search slim PBP by situation")
-    p.add_argument("--seasons", default="2023,2024,2025")
+    p.add_argument("--seasons", default=SEASONS_CSV)
     p.add_argument("--posteam")
     p.add_argument("--defteam")
     p.add_argument("--down", type=int)
