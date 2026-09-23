@@ -1,0 +1,36 @@
+name: daily-pbp
+
+on:
+  schedule:
+    # After typical MNF / late window; nflverse PBP usually lands overnight.
+    - cron: "30 11 * * 2,3"
+    # Monday morning after Sunday slate.
+    - cron: "30 14 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -r requirements.txt
+      - name: Refresh lake (2024-2026)
+        run: python python/pbp_store.py --seasons 2024,2025,2026
+      - name: Publish scouting card
+        run: python python/publish_scouting.py --seasons 2024,2025,2026
+      - name: Commit feed if changed
+        run: |
+          git config user.name "nfl-desk-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add feed/scouting.json
+          git diff --cached --quiet && echo "no scouting change" && exit 0
+          git commit -m "chore: daily PBP scouting $(date -u +%Y-%m-%d)"
+          git push
