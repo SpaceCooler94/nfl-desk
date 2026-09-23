@@ -1,0 +1,2 @@
+# parquet lake lives here after `python pbp_store.py`
+# play_by_play_*.parquet and pbp_slim_*.parquet are gitignored

@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+data/*.parquet
+data/*.part
+data/play_by_play_*.parquet
+data/ftn_charting_*.parquet
+data/reports/
+.DS_Store
