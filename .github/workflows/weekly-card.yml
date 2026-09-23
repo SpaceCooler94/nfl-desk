@@ -1,0 +1,50 @@
+name: weekly-card
+
+on:
+  schedule:
+    # Tuesday 10:30 CT — roll to next week once MNF is final
+    - cron: "30 15 * * 2"
+    # Thursday 11:30 CT — refresh TNF lines
+    - cron: "30 16 * * 4"
+    # Sunday 8:30 CT — morning line refresh
+    - cron: "30 13 * * 0"
+  workflow_dispatch:
+    inputs:
+      week:
+        description: "Regular-season week (blank = auto)"
+        required: false
+      fresh:
+        description: "Rebuild seed props from priors.json"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  card:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -r requirements.txt
+      - name: Build week card
+        run: |
+          EXTRA=""
+          if [ -n "${{ inputs.week }}" ]; then EXTRA="$EXTRA --week ${{ inputs.week }}"; fi
+          if [ "${{ inputs.fresh }}" = "true" ]; then EXTRA="$EXTRA --fresh"; fi
+          python python/build_week.py $EXTRA
+          python python/export_feed.py
+      - name: Commit feed
+        run: |
+          git config user.name "nfl-desk-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add feed/current.json
+          git diff --cached --quiet && echo "no card change" && exit 0
+          WEEK=$(python -c "import json; print(json.load(open('feed/current.json')).get('week'))")
+          git commit -m "chore: week ${WEEK} card $(date -u +%Y-%m-%d)"
+          git push
