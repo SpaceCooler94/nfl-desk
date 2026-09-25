@@ -4,7 +4,7 @@
   "status": "SEED_PRIOR",
   "card_type": "player_props",
   "layout": "xdesk-sheet",
-  "generated_at": "2026-09-24T20:02:38Z",
+  "generated_at": "2026-09-25T04:43:21Z",
   "timezone": "America/Chicago",
   "disclaimer": "Week 3 board from ESPN scoreboard. Props are SEED_PRIOR \u2014 early-season shrink, not tickets. Re-price after inactives.",
   "source": "nfl-desk",
@@ -12,16 +12,15 @@
   "games": [
     {
       "id": "2026_03_ATL_GB",
-      "when": "Thu 7:15p",
+      "when": "Thu FINAL",
       "away": "ATL",
       "home": "GB",
       "tv": "Prime Video",
       "venue": "Lambeau Field",
       "roof": "OPEN",
-      "spread": "GB -4.5",
-      "total": 42.5,
-      "home_implied": 23.5,
-      "away_implied": 19.0,
+      "spread": "\u2014",
+      "total": null,
+      "score": "ATL 35-14",
       "looks": [
         {
           "side": "home",
@@ -170,9 +169,9 @@
       "venue": "EverBank Stadium",
       "roof": "OPEN",
       "spread": "JAX -3",
-      "total": 45.5,
-      "home_implied": 24.25,
-      "away_implied": 21.25
+      "total": 46.5,
+      "home_implied": 24.75,
+      "away_implied": 21.75
     },
     {
       "id": "2026_03_ARI_SF",
@@ -209,9 +208,9 @@
       "venue": "Maracan\u00e3 Stadium",
       "roof": "OPEN",
       "spread": "BAL -3.5",
-      "total": 52.5,
-      "home_implied": 24.5,
-      "away_implied": 28.0,
+      "total": 53.5,
+      "home_implied": 25.0,
+      "away_implied": 28.5,
       "neutral": true,
       "looks": [
         {
@@ -360,7 +359,7 @@
     {
       "id": "w2026_03_atl_gb_gb_pass_yds",
       "game_id": "2026_03_ATL_GB",
-      "when": "Thu 7:15p",
+      "when": "Thu FINAL",
       "player": "Jordan Love",
       "team": "GB",
       "opp": "ATL",
@@ -379,7 +378,7 @@
     {
       "id": "w2026_03_atl_gb_gb_rush_yds",
       "game_id": "2026_03_ATL_GB",
-      "when": "Thu 7:15p",
+      "when": "Thu FINAL",
       "player": "Josh Jacobs",
       "team": "GB",
       "opp": "ATL",
@@ -398,7 +397,7 @@
     {
       "id": "w2026_03_atl_gb_gb_rec_yds",
       "game_id": "2026_03_ATL_GB",
-      "when": "Thu 7:15p",
+      "when": "Thu FINAL",
       "player": "Romeo Doubs",
       "team": "GB",
       "opp": "ATL",
@@ -417,7 +416,7 @@
     {
       "id": "w2026_03_atl_gb_atl_pass_yds",
       "game_id": "2026_03_ATL_GB",
-      "when": "Thu 7:15p",
+      "when": "Thu FINAL",
       "player": "Michael Penix Jr.",
       "team": "ATL",
       "opp": "GB",
@@ -436,7 +435,7 @@
     {
       "id": "w2026_03_atl_gb_atl_rush_yds",
       "game_id": "2026_03_ATL_GB",
-      "when": "Thu 7:15p",
+      "when": "Thu FINAL",
       "player": "Bijan Robinson",
       "team": "ATL",
       "opp": "GB",
@@ -455,7 +454,7 @@
     {
       "id": "w2026_03_atl_gb_atl_rec_yds",
       "game_id": "2026_03_ATL_GB",
-      "when": "Thu 7:15p",
+      "when": "Thu FINAL",
       "player": "Drake London",
       "team": "ATL",
       "opp": "GB",
