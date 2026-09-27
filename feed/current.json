@@ -4,58 +4,12 @@
   "status": "SEED_PRIOR",
   "card_type": "player_props",
   "layout": "xdesk-sheet",
-  "generated_at": "2026-09-25T04:43:21Z",
+  "generated_at": "2026-09-27T17:52:10Z",
   "timezone": "America/Chicago",
   "disclaimer": "Week 3 board from ESPN scoreboard. Props are SEED_PRIOR \u2014 early-season shrink, not tickets. Re-price after inactives.",
   "source": "nfl-desk",
   "feed_version": 9,
   "games": [
-    {
-      "id": "2026_03_ATL_GB",
-      "when": "Thu FINAL",
-      "away": "ATL",
-      "home": "GB",
-      "tv": "Prime Video",
-      "venue": "Lambeau Field",
-      "roof": "OPEN",
-      "spread": "\u2014",
-      "total": null,
-      "score": "ATL 35-14",
-      "looks": [
-        {
-          "side": "home",
-          "team": "GB",
-          "player": "Jordan Love",
-          "pos": "QB",
-          "note": "Home opener \u00b7 Penix debut",
-          "score": 62
-        },
-        {
-          "side": "home",
-          "team": "GB",
-          "player": "Josh Jacobs",
-          "pos": "RB",
-          "note": "Lambeau script",
-          "score": 58
-        },
-        {
-          "side": "away",
-          "team": "ATL",
-          "player": "Michael Penix Jr.",
-          "pos": "QB",
-          "note": "Season debut",
-          "score": 44
-        },
-        {
-          "side": "away",
-          "team": "ATL",
-          "player": "Bijan Robinson",
-          "pos": "RB",
-          "note": "ATL offense still Bijan",
-          "score": 70
-        }
-      ]
-    },
     {
       "id": "2026_03_LAC_BUF",
       "when": "Sun 12:00p",
@@ -64,10 +18,8 @@
       "tv": "FOX",
       "venue": "Highmark Stadium",
       "roof": "OPEN",
-      "spread": "BUF -7",
-      "total": 50.5,
-      "home_implied": 28.75,
-      "away_implied": 21.75
+      "spread": "\u2014",
+      "total": null
     },
     {
       "id": "2026_03_CAR_CLE",
@@ -77,10 +29,8 @@
       "tv": "FOX",
       "venue": "Huntington Bank Field",
       "roof": "OPEN",
-      "spread": "CAR -2.5",
-      "total": 42.5,
-      "home_implied": 20.0,
-      "away_implied": 22.5
+      "spread": "\u2014",
+      "total": null
     },
     {
       "id": "2026_03_NYJ_DET",
@@ -90,10 +40,8 @@
       "tv": "FOX",
       "venue": "Ford Field",
       "roof": "CLOSED",
-      "spread": "DET -6.5",
-      "total": 47.5,
-      "home_implied": 27.0,
-      "away_implied": 20.5
+      "spread": "\u2014",
+      "total": null
     },
     {
       "id": "2026_03_HOU_IND",
@@ -103,10 +51,8 @@
       "tv": "CBS",
       "venue": "Lucas Oil Stadium",
       "roof": "CLOSED",
-      "spread": "HOU -1.5",
-      "total": 42.5,
-      "home_implied": 20.5,
-      "away_implied": 22.0
+      "spread": "\u2014",
+      "total": null
     },
     {
       "id": "2026_03_KC_MIA",
@@ -116,10 +62,8 @@
       "tv": "CBS",
       "venue": "Hard Rock Stadium",
       "roof": "OPEN",
-      "spread": "KC -10.5",
-      "total": 45.5,
-      "home_implied": 17.5,
-      "away_implied": 28.0
+      "spread": "\u2014",
+      "total": null
     },
     {
       "id": "2026_03_TEN_NYG",
@@ -129,10 +73,8 @@
       "tv": "CBS",
       "venue": "MetLife Stadium",
       "roof": "OPEN",
-      "spread": "NYG -2.5",
-      "total": 38.5,
-      "home_implied": 20.5,
-      "away_implied": 18.0
+      "spread": "\u2014",
+      "total": null
     },
     {
       "id": "2026_03_CIN_PIT",
@@ -142,10 +84,8 @@
       "tv": "CBS",
       "venue": "Acrisure Stadium",
       "roof": "OPEN",
-      "spread": "CIN -3.5",
-      "total": 42.5,
-      "home_implied": 19.5,
-      "away_implied": 23.0
+      "spread": "\u2014",
+      "total": null
     },
     {
       "id": "2026_03_SEA_WSH",
@@ -155,10 +95,8 @@
       "tv": "FOX",
       "venue": "Northwest Stadium",
       "roof": "OPEN",
-      "spread": "SEA -7.5",
-      "total": 40.5,
-      "home_implied": 16.5,
-      "away_implied": 24.0
+      "spread": "\u2014",
+      "total": null
     },
     {
       "id": "2026_03_NE_JAX",
@@ -168,10 +106,8 @@
       "tv": "CBS",
       "venue": "EverBank Stadium",
       "roof": "OPEN",
-      "spread": "JAX -3",
-      "total": 46.5,
-      "home_implied": 24.75,
-      "away_implied": 21.75
+      "spread": "\u2014",
+      "total": null
     },
     {
       "id": "2026_03_ARI_SF",
@@ -181,10 +117,10 @@
       "tv": "FOX",
       "venue": "Levi's Stadium",
       "roof": "OPEN",
-      "spread": "SF -8.5",
-      "total": 47.5,
+      "spread": "SF -7.5",
+      "total": 48.5,
       "home_implied": 28.0,
-      "away_implied": 19.5
+      "away_implied": 20.5
     },
     {
       "id": "2026_03_MIN_TB",
@@ -207,10 +143,10 @@
       "tv": "CBS",
       "venue": "Maracan\u00e3 Stadium",
       "roof": "OPEN",
-      "spread": "BAL -3.5",
+      "spread": "BAL -3",
       "total": 53.5,
-      "home_implied": 25.0,
-      "away_implied": 28.5,
+      "home_implied": 25.25,
+      "away_implied": 28.25,
       "neutral": true,
       "looks": [
         {
@@ -255,10 +191,10 @@
       "tv": "CBS",
       "venue": "Caesars Superdome",
       "roof": "CLOSED",
-      "spread": "NO -3",
+      "spread": "NO -3.5",
       "total": 43.5,
-      "home_implied": 23.25,
-      "away_implied": 20.25
+      "home_implied": 23.5,
+      "away_implied": 20.0
     },
     {
       "id": "2026_03_LAR_DEN",
@@ -268,10 +204,10 @@
       "tv": "NBC",
       "venue": "Empower Field at Mile High",
       "roof": "OPEN",
-      "spread": "LAR -2.5",
+      "spread": "LAR -1.5",
       "total": 44.5,
-      "home_implied": 21.0,
-      "away_implied": 23.5,
+      "home_implied": 21.5,
+      "away_implied": 23.0,
       "looks": [
         {
           "side": "away",
@@ -304,6 +240,52 @@
           "pos": "WR",
           "note": "WR1 vs LAR",
           "score": 52
+        }
+      ]
+    },
+    {
+      "id": "2026_03_ATL_GB",
+      "when": "Thu FINAL",
+      "away": "ATL",
+      "home": "GB",
+      "tv": "Prime Video",
+      "venue": "Lambeau Field",
+      "roof": "OPEN",
+      "spread": "\u2014",
+      "total": null,
+      "score": "ATL 35-14",
+      "looks": [
+        {
+          "side": "home",
+          "team": "GB",
+          "player": "Jordan Love",
+          "pos": "QB",
+          "note": "Home opener \u00b7 Penix debut",
+          "score": 62
+        },
+        {
+          "side": "home",
+          "team": "GB",
+          "player": "Josh Jacobs",
+          "pos": "RB",
+          "note": "Lambeau script",
+          "score": 58
+        },
+        {
+          "side": "away",
+          "team": "ATL",
+          "player": "Michael Penix Jr.",
+          "pos": "QB",
+          "note": "Season debut",
+          "score": 44
+        },
+        {
+          "side": "away",
+          "team": "ATL",
+          "player": "Bijan Robinson",
+          "pos": "RB",
+          "note": "ATL offense still Bijan",
+          "score": 70
         }
       ]
     },
@@ -356,120 +338,6 @@
     }
   ],
   "props": [
-    {
-      "id": "w2026_03_atl_gb_gb_pass_yds",
-      "game_id": "2026_03_ATL_GB",
-      "when": "Thu FINAL",
-      "player": "Jordan Love",
-      "team": "GB",
-      "opp": "ATL",
-      "pos": "QB",
-      "market": "pass_yds",
-      "market_label": "Pass yds",
-      "line": 228.5,
-      "proj": 236.0,
-      "sigma": 62.0,
-      "p_over": 0.55,
-      "edge": 7.5,
-      "play": "WATCH",
-      "units": 0,
-      "note": "SEED_PRIOR auto"
-    },
-    {
-      "id": "w2026_03_atl_gb_gb_rush_yds",
-      "game_id": "2026_03_ATL_GB",
-      "when": "Thu FINAL",
-      "player": "Josh Jacobs",
-      "team": "GB",
-      "opp": "ATL",
-      "pos": "RB",
-      "market": "rush_yds",
-      "market_label": "Rush yds",
-      "line": 72.5,
-      "proj": 76.0,
-      "sigma": 32.0,
-      "p_over": 0.54,
-      "edge": 3.5,
-      "play": "WATCH",
-      "units": 0,
-      "note": "SEED_PRIOR auto"
-    },
-    {
-      "id": "w2026_03_atl_gb_gb_rec_yds",
-      "game_id": "2026_03_ATL_GB",
-      "when": "Thu FINAL",
-      "player": "Romeo Doubs",
-      "team": "GB",
-      "opp": "ATL",
-      "pos": "WR",
-      "market": "rec_yds",
-      "market_label": "Rec yds",
-      "line": 54.5,
-      "proj": 56.0,
-      "sigma": 28.0,
-      "p_over": 0.52,
-      "edge": 1.5,
-      "play": "WATCH",
-      "units": 0,
-      "note": "SEED_PRIOR auto"
-    },
-    {
-      "id": "w2026_03_atl_gb_atl_pass_yds",
-      "game_id": "2026_03_ATL_GB",
-      "when": "Thu FINAL",
-      "player": "Michael Penix Jr.",
-      "team": "ATL",
-      "opp": "GB",
-      "pos": "QB",
-      "market": "pass_yds",
-      "market_label": "Pass yds",
-      "line": 214.5,
-      "proj": 218.0,
-      "sigma": 62.0,
-      "p_over": 0.52,
-      "edge": 3.5,
-      "play": "WATCH",
-      "units": 0,
-      "note": "SEED_PRIOR auto"
-    },
-    {
-      "id": "w2026_03_atl_gb_atl_rush_yds",
-      "game_id": "2026_03_ATL_GB",
-      "when": "Thu FINAL",
-      "player": "Bijan Robinson",
-      "team": "ATL",
-      "opp": "GB",
-      "pos": "RB",
-      "market": "rush_yds",
-      "market_label": "Rush yds",
-      "line": 78.5,
-      "proj": 82.0,
-      "sigma": 32.0,
-      "p_over": 0.54,
-      "edge": 3.5,
-      "play": "WATCH",
-      "units": 0,
-      "note": "SEED_PRIOR auto"
-    },
-    {
-      "id": "w2026_03_atl_gb_atl_rec_yds",
-      "game_id": "2026_03_ATL_GB",
-      "when": "Thu FINAL",
-      "player": "Drake London",
-      "team": "ATL",
-      "opp": "GB",
-      "pos": "WR",
-      "market": "rec_yds",
-      "market_label": "Rec yds",
-      "line": 68.5,
-      "proj": 72.0,
-      "sigma": 28.0,
-      "p_over": 0.55,
-      "edge": 3.5,
-      "play": "WATCH",
-      "units": 0,
-      "note": "SEED_PRIOR auto"
-    },
     {
       "id": "w2026_03_lac_buf_buf_pass_yds",
       "game_id": "2026_03_LAC_BUF",
@@ -2062,6 +1930,120 @@
       "sigma": 28.0,
       "p_over": 0.58,
       "edge": 5.5,
+      "play": "WATCH",
+      "units": 0,
+      "note": "SEED_PRIOR auto"
+    },
+    {
+      "id": "w2026_03_atl_gb_gb_pass_yds",
+      "game_id": "2026_03_ATL_GB",
+      "when": "Thu FINAL",
+      "player": "Jordan Love",
+      "team": "GB",
+      "opp": "ATL",
+      "pos": "QB",
+      "market": "pass_yds",
+      "market_label": "Pass yds",
+      "line": 228.5,
+      "proj": 236.0,
+      "sigma": 62.0,
+      "p_over": 0.55,
+      "edge": 7.5,
+      "play": "WATCH",
+      "units": 0,
+      "note": "SEED_PRIOR auto"
+    },
+    {
+      "id": "w2026_03_atl_gb_gb_rush_yds",
+      "game_id": "2026_03_ATL_GB",
+      "when": "Thu FINAL",
+      "player": "Josh Jacobs",
+      "team": "GB",
+      "opp": "ATL",
+      "pos": "RB",
+      "market": "rush_yds",
+      "market_label": "Rush yds",
+      "line": 72.5,
+      "proj": 76.0,
+      "sigma": 32.0,
+      "p_over": 0.54,
+      "edge": 3.5,
+      "play": "WATCH",
+      "units": 0,
+      "note": "SEED_PRIOR auto"
+    },
+    {
+      "id": "w2026_03_atl_gb_gb_rec_yds",
+      "game_id": "2026_03_ATL_GB",
+      "when": "Thu FINAL",
+      "player": "Romeo Doubs",
+      "team": "GB",
+      "opp": "ATL",
+      "pos": "WR",
+      "market": "rec_yds",
+      "market_label": "Rec yds",
+      "line": 54.5,
+      "proj": 56.0,
+      "sigma": 28.0,
+      "p_over": 0.52,
+      "edge": 1.5,
+      "play": "WATCH",
+      "units": 0,
+      "note": "SEED_PRIOR auto"
+    },
+    {
+      "id": "w2026_03_atl_gb_atl_pass_yds",
+      "game_id": "2026_03_ATL_GB",
+      "when": "Thu FINAL",
+      "player": "Michael Penix Jr.",
+      "team": "ATL",
+      "opp": "GB",
+      "pos": "QB",
+      "market": "pass_yds",
+      "market_label": "Pass yds",
+      "line": 214.5,
+      "proj": 218.0,
+      "sigma": 62.0,
+      "p_over": 0.52,
+      "edge": 3.5,
+      "play": "WATCH",
+      "units": 0,
+      "note": "SEED_PRIOR auto"
+    },
+    {
+      "id": "w2026_03_atl_gb_atl_rush_yds",
+      "game_id": "2026_03_ATL_GB",
+      "when": "Thu FINAL",
+      "player": "Bijan Robinson",
+      "team": "ATL",
+      "opp": "GB",
+      "pos": "RB",
+      "market": "rush_yds",
+      "market_label": "Rush yds",
+      "line": 78.5,
+      "proj": 82.0,
+      "sigma": 32.0,
+      "p_over": 0.54,
+      "edge": 3.5,
+      "play": "WATCH",
+      "units": 0,
+      "note": "SEED_PRIOR auto"
+    },
+    {
+      "id": "w2026_03_atl_gb_atl_rec_yds",
+      "game_id": "2026_03_ATL_GB",
+      "when": "Thu FINAL",
+      "player": "Drake London",
+      "team": "ATL",
+      "opp": "GB",
+      "pos": "WR",
+      "market": "rec_yds",
+      "market_label": "Rec yds",
+      "line": 68.5,
+      "proj": 72.0,
+      "sigma": 28.0,
+      "p_over": 0.55,
+      "edge": 3.5,
       "play": "WATCH",
       "units": 0,
       "note": "SEED_PRIOR auto"
