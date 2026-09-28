@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-27T23:29:02Z",
+  "generated_at": "2026-09-28T16:40:01Z",
   "seasons": [
     2024,
     2025,
@@ -7,6 +7,78 @@
   ],
   "attribution": "nflverse PBP; FTN Data via nflverse",
   "teams": {
+    "MIN": {
+      "team": "MIN",
+      "side": "offense",
+      "n": 185,
+      "epa": -0.2096816439818238,
+      "delta": -0.5669577008263621,
+      "success": 0.31891891891891894,
+      "cpoe": -0.004761425176061185,
+      "n_coverage": 0,
+      "n_proxy": 185,
+      "line": "MIN 3rd-7+ vs 2H n=185 \u00b7 EPA -0.21 \u00b7 \u0394 -0.57 \u00b7 succ 32%"
+    },
+    "TB": {
+      "team": "TB",
+      "side": "offense",
+      "n": 206,
+      "epa": -0.05502339498425419,
+      "delta": 0.1576697665362845,
+      "success": 0.3446601941747573,
+      "cpoe": -0.4639661517636529,
+      "n_coverage": 0,
+      "n_proxy": 206,
+      "line": "TB 3rd-7+ vs 2H n=206 \u00b7 EPA -0.06 \u00b7 \u0394 +0.16 \u00b7 succ 34%"
+    },
+    "BAL": {
+      "team": "BAL",
+      "side": "offense",
+      "n": 163,
+      "epa": 0.010654147143609762,
+      "delta": 0.3990904602986826,
+      "success": 0.3312883435582822,
+      "cpoe": 3.889281873125583,
+      "n_coverage": 0,
+      "n_proxy": 163,
+      "line": "BAL 3rd-7+ vs 2H n=163 \u00b7 EPA +0.01 \u00b7 \u0394 +0.40 \u00b7 succ 33%"
+    },
+    "DAL": {
+      "team": "DAL",
+      "side": "offense",
+      "n": 186,
+      "epa": -0.24743147041684607,
+      "delta": -0.4288938784068631,
+      "success": 0.26344086021505375,
+      "cpoe": -5.669504647352258,
+      "n_coverage": 0,
+      "n_proxy": 186,
+      "line": "DAL 3rd-7+ vs 2H n=186 \u00b7 EPA -0.25 \u00b7 \u0394 -0.43 \u00b7 succ 26%"
+    },
+    "LV": {
+      "team": "LV",
+      "side": "offense",
+      "n": 192,
+      "epa": -0.23126024255923058,
+      "delta": 0.3152456442030416,
+      "success": 0.2760416666666667,
+      "cpoe": 0.24151305357615152,
+      "n_coverage": 0,
+      "n_proxy": 192,
+      "line": "LV 3rd-7+ vs 2H n=192 \u00b7 EPA -0.23 \u00b7 \u0394 +0.32 \u00b7 succ 28%"
+    },
+    "NO": {
+      "team": "NO",
+      "side": "offense",
+      "n": 191,
+      "epa": -0.26582116545045076,
+      "delta": 0.17289149831447587,
+      "success": 0.25654450261780104,
+      "cpoe": -1.6831446078515822,
+      "n_coverage": 0,
+      "n_proxy": 191,
+      "line": "NO 3rd-7+ vs 2H n=191 \u00b7 EPA -0.27 \u00b7 \u0394 +0.17 \u00b7 succ 26%"
+    },
     "LAC": {
       "team": "LAC",
       "side": "offense",
@@ -228,96 +300,24 @@
       "side": "offense",
       "n": 176,
       "epa": -0.2887540918060811,
-      "delta": 0.058472603976525594,
+      "delta": 0.051100960023679975,
       "success": 0.2727272727272727,
       "cpoe": -3.103839845980628,
       "n_coverage": 0,
       "n_proxy": 176,
-      "line": "ARI 3rd-7+ vs 2H n=176 \u00b7 EPA -0.29 \u00b7 \u0394 +0.06 \u00b7 succ 27%"
+      "line": "ARI 3rd-7+ vs 2H n=176 \u00b7 EPA -0.29 \u00b7 \u0394 +0.05 \u00b7 succ 27%"
     },
     "SF": {
       "team": "SF",
       "side": "offense",
       "n": 161,
       "epa": 0.22963765577418777,
-      "delta": 0.7915806936730958,
+      "delta": -0.026051710800973737,
       "success": 0.422360248447205,
       "cpoe": 4.068872584746434,
       "n_coverage": 0,
       "n_proxy": 161,
-      "line": "SF 3rd-7+ vs 2H n=161 \u00b7 EPA +0.23 \u00b7 \u0394 +0.79 \u00b7 succ 42%"
-    },
-    "MIN": {
-      "team": "MIN",
-      "side": "offense",
-      "n": 185,
-      "epa": -0.2096816439818238,
-      "delta": -0.8882704431831997,
-      "success": 0.31891891891891894,
-      "cpoe": -0.004761425176061185,
-      "n_coverage": 0,
-      "n_proxy": 185,
-      "line": "MIN 3rd-7+ vs 2H n=185 \u00b7 EPA -0.21 \u00b7 \u0394 -0.89 \u00b7 succ 32%"
-    },
-    "TB": {
-      "team": "TB",
-      "side": "offense",
-      "n": 206,
-      "epa": -0.05502339498425419,
-      "delta": 0.0711219867725719,
-      "success": 0.3446601941747573,
-      "cpoe": -0.4639661517636529,
-      "n_coverage": 0,
-      "n_proxy": 206,
-      "line": "TB 3rd-7+ vs 2H n=206 \u00b7 EPA -0.06 \u00b7 \u0394 +0.07 \u00b7 succ 34%"
-    },
-    "BAL": {
-      "team": "BAL",
-      "side": "offense",
-      "n": 163,
-      "epa": 0.010654147143609762,
-      "delta": 0.37639353749589854,
-      "success": 0.3312883435582822,
-      "cpoe": 3.889281873125583,
-      "n_coverage": 0,
-      "n_proxy": 163,
-      "line": "BAL 3rd-7+ vs 2H n=163 \u00b7 EPA +0.01 \u00b7 \u0394 +0.38 \u00b7 succ 33%"
-    },
-    "DAL": {
-      "team": "DAL",
-      "side": "offense",
-      "n": 186,
-      "epa": -0.24743147041684607,
-      "delta": 0.08379659190830555,
-      "success": 0.26344086021505375,
-      "cpoe": -5.669504647352258,
-      "n_coverage": 0,
-      "n_proxy": 186,
-      "line": "DAL 3rd-7+ vs 2H n=186 \u00b7 EPA -0.25 \u00b7 \u0394 +0.08 \u00b7 succ 26%"
-    },
-    "LV": {
-      "team": "LV",
-      "side": "offense",
-      "n": 192,
-      "epa": -0.23126024255923058,
-      "delta": 0.4254070178936096,
-      "success": 0.2760416666666667,
-      "cpoe": 0.24151305357615152,
-      "n_coverage": 0,
-      "n_proxy": 192,
-      "line": "LV 3rd-7+ vs 2H n=192 \u00b7 EPA -0.23 \u00b7 \u0394 +0.43 \u00b7 succ 28%"
-    },
-    "NO": {
-      "team": "NO",
-      "side": "offense",
-      "n": 191,
-      "epa": -0.26582116545045076,
-      "delta": 0.2850468358635482,
-      "success": 0.25654450261780104,
-      "cpoe": -1.6831446078515822,
-      "n_coverage": 0,
-      "n_proxy": 191,
-      "line": "NO 3rd-7+ vs 2H n=191 \u00b7 EPA -0.27 \u00b7 \u0394 +0.29 \u00b7 succ 26%"
+      "line": "SF 3rd-7+ vs 2H n=161 \u00b7 EPA +0.23 \u00b7 \u0394 -0.03 \u00b7 succ 42%"
     },
     "LAR": {
       "team": "LAR",
@@ -336,12 +336,12 @@
       "side": "offense",
       "n": 198,
       "epa": -0.08842950044902868,
-      "delta": 0.3189657508205597,
+      "delta": 0.11339861902532537,
       "success": 0.3282828282828283,
       "cpoe": 1.278700317904266,
       "n_coverage": 0,
       "n_proxy": 198,
-      "line": "DEN 3rd-7+ vs 2H n=198 \u00b7 EPA -0.09 \u00b7 \u0394 +0.32 \u00b7 succ 33%"
+      "line": "DEN 3rd-7+ vs 2H n=198 \u00b7 EPA -0.09 \u00b7 \u0394 +0.11 \u00b7 succ 33%"
     },
     "ATL": {
       "team": "ATL",
