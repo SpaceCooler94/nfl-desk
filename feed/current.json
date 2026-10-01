@@ -4,7 +4,7 @@
   "status": "SEED_PRIOR",
   "card_type": "player_props",
   "layout": "xdesk-sheet",
-  "generated_at": "2026-09-29T20:03:50Z",
+  "generated_at": "2026-10-01T21:08:51Z",
   "timezone": "America/Chicago",
   "disclaimer": "Week 4 board from ESPN scoreboard. Props are SEED_PRIOR \u2014 early-season shrink, not tickets. Re-price after inactives.",
   "source": "nfl-desk",
@@ -32,9 +32,9 @@
       "venue": "Tottenham Hotspur Stadium",
       "roof": "OPEN",
       "spread": "IND -3.5",
-      "total": 47.5,
-      "home_implied": 22.0,
-      "away_implied": 25.5,
+      "total": 48.5,
+      "home_implied": 22.5,
+      "away_implied": 26.0,
       "neutral": true
     },
     {
@@ -58,10 +58,10 @@
       "tv": "FOX",
       "venue": "Soldier Field",
       "roof": "OPEN",
-      "spread": "CHI -3",
-      "total": 42.5,
-      "home_implied": 22.75,
-      "away_implied": 19.75
+      "spread": "CHI -3.5",
+      "total": 43.5,
+      "home_implied": 23.5,
+      "away_implied": 20.0
     },
     {
       "id": "2026_04_JAX_CIN",
@@ -84,10 +84,10 @@
       "tv": "CBS",
       "venue": "MetLife Stadium",
       "roof": "OPEN",
-      "spread": "ARI -1.5",
+      "spread": "ARI -2.5",
       "total": 44.5,
-      "home_implied": 21.5,
-      "away_implied": 23.0
+      "home_implied": 21.0,
+      "away_implied": 23.5
     },
     {
       "id": "2026_04_LAR_PHI",
@@ -97,10 +97,10 @@
       "tv": "FOX",
       "venue": "Lincoln Financial Field",
       "roof": "OPEN",
-      "spread": "LAR -3",
+      "spread": "LAR -3.5",
       "total": 43.5,
-      "home_implied": 20.25,
-      "away_implied": 23.25
+      "home_implied": 20.0,
+      "away_implied": 23.5
     },
     {
       "id": "2026_04_GB_TB",
@@ -111,9 +111,9 @@
       "venue": "Raymond James Stadium",
       "roof": "OPEN",
       "spread": "GB -3.5",
-      "total": 39.5,
-      "home_implied": 18.0,
-      "away_implied": 21.5
+      "total": 38.5,
+      "home_implied": 17.5,
+      "away_implied": 21.0
     },
     {
       "id": "2026_04_TEN_BAL",
@@ -124,9 +124,9 @@
       "venue": "M&T Bank Stadium",
       "roof": "OPEN",
       "spread": "BAL -11.5",
-      "total": 43.5,
-      "home_implied": 27.5,
-      "away_implied": 16.0
+      "total": 42.5,
+      "home_implied": 27.0,
+      "away_implied": 15.5
     },
     {
       "id": "2026_04_DAL_HOU",
@@ -136,10 +136,10 @@
       "tv": "FOX",
       "venue": "Reliant Stadium",
       "roof": "CLOSED",
-      "spread": "HOU -2.5",
-      "total": 47.5,
-      "home_implied": 25.0,
-      "away_implied": 22.5
+      "spread": "HOU -3",
+      "total": 48.5,
+      "home_implied": 25.75,
+      "away_implied": 22.75
     },
     {
       "id": "2026_04_MIA_MIN",
@@ -176,9 +176,9 @@
       "venue": "Levi's Stadium",
       "roof": "OPEN",
       "spread": "SF -3",
-      "total": 46.5,
-      "home_implied": 24.75,
-      "away_implied": 21.75
+      "total": 47.5,
+      "home_implied": 25.25,
+      "away_implied": 22.25
     },
     {
       "id": "2026_04_LAC_SEA",
@@ -214,10 +214,10 @@
       "tv": "ESPN",
       "venue": "Caesars Superdome",
       "roof": "CLOSED",
-      "spread": "NO -3",
-      "total": 48.5,
-      "home_implied": 25.75,
-      "away_implied": 22.75
+      "spread": "NO -2.5",
+      "total": 47.5,
+      "home_implied": 25.0,
+      "away_implied": 22.5
     }
   ],
   "props": [
